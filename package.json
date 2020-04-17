@@ -1,0 +1,30 @@
+{
+  "name": "youtube_podcast",
+  "version": "1.0.0",
+  "description": "turn youtube videos into audio padcast",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yournian/youtube_podcast.git"
+  },
+  "keywords": [
+    "youtube",
+    "podcast",
+    "audio"
+  ],
+  "author": "yournian",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yournian/youtube_podcast/issues"
+  },
+  "homepage": "https://github.com/yournian/youtube_podcast#readme",
+  "dependencies": {
+    "ytdl-core": "^2.1.0"
+  }
+}
