@@ -11,8 +11,11 @@ const ytdl = require('ytdl-core');
 let url = 'https://www.youtube.com/watch?v=lG7RnOvAN2s';
 
 
-ytdl.getInfo(url).then(result => {
-    console.log(result);
-}).catch(err => {
-    console.error(err);
-})
+// ytdl.getInfo(url).then(result => {
+//     console.log(result);
+// }).catch(err => {
+//     console.error(err);
+// })
+
+ytdl(url)
+  .pipe(fs.createWriteStream('test.mp4'));
