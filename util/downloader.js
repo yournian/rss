@@ -50,32 +50,24 @@ class YoutubeDownloader extends Downloader{
         extension = this.checkExtension(extension);
         let fileName = name + extension;
 
-        // return new Promise((resolve, reject) => {
-        //     resolve(true);
-        // });
+        return new Promise((resolve, reject) => {
+            const stream = ytdl(url, {filter: 'audio'}).pipe(fs.createWriteStream(fileName));
+            stream.on('close', () => {
+                console.log('download close');
+            })
 
-        // return new Promise((resolve, reject) => {
-            const stream = ytdl(url).pipe(fs.createWriteStream(fileName));
-//             Event: 'close'
-// Event: 'drain'
-// Event: 'error'
-// Event: 'finish'
-// Event: 'pipe'
-// Event: 'unpipe'
-        stream.on('close', (data) => {
-            console.log('close', data)
-        })
+            stream.on('error', (data) => {
+                reject(data);
+                console.error('download failed url: [%s], reason: [%s]', url, err);
 
-        stream.on('error', (data) => {
-            console.log('error', data)
-        })
+            })
 
-        stream.on('finish', (data) => {
-            console.log('finish', data)
-        })
+            stream.on('finish', () => {
+                console.log('download finish');
+                resolve(fileName);
+            })
 
-        
-
+    
 
             // stream.then((data) => {
             //     console.warn(data);
@@ -89,7 +81,7 @@ class YoutubeDownloader extends Downloader{
             //     console.error('download failed url: [%s], reason: [%s]', url, err);
             //     reject(err);
             // })
-        // })
+        })
     }
 
     checkExtension(extension){

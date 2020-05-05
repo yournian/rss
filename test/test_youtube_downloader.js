@@ -1,6 +1,6 @@
 const {YoutubeDownloader} = require('../util/downloader');
 
-function download(){
+async function download(){
   let items = [
     {
       'title': 'test1',
@@ -12,7 +12,19 @@ function download(){
     // }
   ];
   let downloader = new YoutubeDownloader();
-  return downloader.downloadItems(items);
+  let promises = await downloader.downloadItems(items);
+  if(promises.length == 0){
+    console.log('no downloading');
+    return;
+  }
+
+  Promise.all(promises).then(posts => {
+    for(let name of posts){
+        console.log('download [%s] succeed', name);
+    }
+  }).catch(err => {
+      console.error('download failed: ', err);
+  })
 }
 
 async function test(){
