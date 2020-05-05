@@ -1,7 +1,7 @@
 const fs = require('fs');
 const ytdl = require('ytdl-core');
 const Str = require('./str');
-
+const File = require('./myFile');
 
 class Downloader{
     constructor(){
@@ -13,7 +13,7 @@ class Downloader{
     }
 
     checkName(name){
-        if(!name || typeof(str) != 'string'){
+        if(!name || typeof(name) != 'string'){
             name = new Str().randomStr();
         }
         return name;
@@ -31,21 +31,17 @@ class YoutubeDownloader extends Downloader{
     async downloadItems(items){
         let promises = [];
         for(let item of items){
-            let {title, description, pubDate, link} = item;
-            // console.log(title[0].trim());
-            // console.log(description[0].trim());
-            // console.log(pubDate[0].trim());
-            // console.log(link[0].trim());
-
-            let url = link.trim();
-            let name = title.trim();
-
-            let exist = await file.isExist(name);
+            // let {title, guid, audio, pubDate, link, description} = item;
+            let exist = await new File().isExist(item.title);
             if(!exist){
-                promises.add(this.download(url, name, 'mp4'));
+                promises.push(this.downloadItem(item));
             }
         }
         return promises;
+    }
+
+    downloadItem(item){
+        return this.download(item.link, item.title, 'm4a');
     }
 
     download(url, name, extension){
@@ -54,23 +50,50 @@ class YoutubeDownloader extends Downloader{
         extension = this.checkExtension(extension);
         let fileName = name + extension;
 
-        return new Promise((resolve, reject) => {
-            ytdl(url).pipe(fs.createWriteStream(fileName)).then(() => {
-                console.log('download succeed url: [%s]', url);
-                let audio = {
-                    'title': name, 
-                    'size': size
-                };
-                resolve(audio);
-            }).catch(err => {
-                console.error('download failed url: [%s], reason: [%s]', url, err);
-                reject(err);
-            })
+        // return new Promise((resolve, reject) => {
+        //     resolve(true);
+        // });
+
+        // return new Promise((resolve, reject) => {
+            const stream = ytdl(url).pipe(fs.createWriteStream(fileName));
+//             Event: 'close'
+// Event: 'drain'
+// Event: 'error'
+// Event: 'finish'
+// Event: 'pipe'
+// Event: 'unpipe'
+        stream.on('close', (data) => {
+            console.log('close', data)
         })
+
+        stream.on('error', (data) => {
+            console.log('error', data)
+        })
+
+        stream.on('finish', (data) => {
+            console.log('finish', data)
+        })
+
+        
+
+
+            // stream.then((data) => {
+            //     console.warn(data);
+            //     console.log('download succeed url: [%s]', url);
+            //     // let audio = {
+            //     //     'title': name, 
+            //     //     'size': size
+            //     // };
+            //     resolve(true);
+            // }).catch(err => {
+            //     console.error('download failed url: [%s], reason: [%s]', url, err);
+            //     reject(err);
+            // })
+        // })
     }
 
     checkExtension(extension){
-        return '.mp4'
+        return '.m4a'
     }
 }
 
