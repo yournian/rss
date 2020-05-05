@@ -1,16 +1,18 @@
 const {YoutubeDownloader} = require('../util/downloader');
 
-async function download(){
-  let items = [
-    {
-      'title': 'test1',
-      'link': 'https://www.youtube.com/watch?v=lG7RnOvAN2s'
-    },
-    // {
-    //   'title': 'test2',
-    //   'link': 'https://www.youtube.com/watch?v=lG7RnOvAN2s'
-    // }
-  ];
+
+let items = [
+  {
+    'title': 'test1',
+    'link': 'https://www.youtube.com/watch?v=lG7RnOvAN2s'
+  },
+  // {
+  //   'title': 'test2',
+  //   'link': 'https://www.youtube.com/watch?v=lG7RnOvAN2s'
+  // }
+];
+
+async function downloadItems(){
   let downloader = new YoutubeDownloader();
   let promises = await downloader.downloadItems(items);
   if(promises.length == 0){
@@ -27,9 +29,18 @@ async function download(){
   })
 }
 
-async function test(){
-  let result = await download();
+
+async function download(){
+  let item = items[0];
+  let downloader = new YoutubeDownloader();
+  let result = await downloader.download(item.link, item.name);
   console.log('result:', result);
 }
+
+
+function test(){
+  download();
+}
+
 
 module.exports = test;
