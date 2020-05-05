@@ -37,9 +37,17 @@ async function download(){
   console.log('result:', result);
 }
 
+async function getBasicInfo(){
+  let item = items[0];
+  let downloader = new YoutubeDownloader();
+  let result = await downloader.getBasicInfo(item.link, item.name);
+  console.log('result');
+  console.log(result);
+}
+
 
 function test(){
-  download();
+  getBasicInfo();
 }
 
 

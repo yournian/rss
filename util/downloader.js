@@ -59,7 +59,6 @@ class YoutubeDownloader extends Downloader{
             stream.on('error', (data) => {
                 reject(data);
                 console.error('download failed url: [%s], reason: [%s]', url, err);
-
             })
 
             stream.on('finish', () => {
@@ -82,6 +81,10 @@ class YoutubeDownloader extends Downloader{
             //     reject(err);
             // })
         })
+    }
+
+    getBasicInfo(){
+        return ytdl.getBasicInfo(url, {filter: 'audioonly'})
     }
 
     checkExtension(extension){
