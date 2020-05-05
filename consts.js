@@ -8,7 +8,13 @@ const CHANNEL = {
         },
     }
 }
-
+const DomainName = 'http://yournian.info/'; 
+const Path = {
+    'media': './media/',
+    'feed': './feed/'
+}
 module.exports = {
-    CHANNEL
+    CHANNEL,
+    DomainName,
+    Path
 }

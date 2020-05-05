@@ -1,8 +1,8 @@
 const {Feed} = require('./feed');
 const Youtube = require('./youtube');
 const {YoutubeDownloader} = require('../util/downloader');
+const {DomainName} = require('../consts');
 
-const DomainName = 'http://yournian.info/';
 let channels = [
     {
         'name': 'stone',
@@ -25,40 +25,25 @@ async function getUpdate(){
                 'link': 'https://www.youtube.com/channel/' + channel.id,
                 'language': 'zh-cn',
                 'description': channel.name + ' 的 Youtube 视频',
-                'href': DomainName + 'youtube/feed/' + channel.id + '.xml'
+                'href': DomainName + 'youtube/feed/' + channel.name + '.xml'
             }
             feed.generateEmpty(info);
         }
         
-        let toAddItems = extract(youtube.videos, feed.items); //todo
+        let toAddItems = extract(youtube.videos, feed.items);
 
         if(toAddItems.length == 0) return;
-
-        feed.addItems(toAddItems);
-        feed.updateFile('./feed/' + channel.name + '.xml');
-
-
         
-        return;
-        //todo
         let downloader = new YoutubeDownloader();
-        let promise = await downloader.downloadItems(toAddItems);
-        Promise.all(promise).then(posts => {
-            for(let audio of posts){
-                let item = {
-                    title, 
-                    guid, 
-                    audio, 
-                    pubDate, 
-                    link, 
-                    description
-                };
-                feed.addItem(item);
-            }
-            feed.updateFile(filename);
-        }).catch(err => {
-            console.error('download failed: ', err);
-        })
+        let promises = downloader.downloadItems(toAddItems);
+        let items = await Promise.all(promises);
+        feed.addItems(items);
+        let succeed = await feed.updateFile(filename);
+        if(succeed){
+            console.log('update channel[%s] succeed', channel.name);
+        }else{
+            console.log('update channel[%s] failed', channel.name);
+        }
     }
 }
 

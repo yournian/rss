@@ -1,16 +1,26 @@
 const {RssXml} = require('./xml');
 const File = require('../util/myFile');
 let file = new File();
+const {DomainName} = require('../consts');
 
 
 class Item{
     constructor(title, guid, audio, pubDate, link, description){
         this.title = title;
         this.guid = guid;
-        this.audio = audio;
+        this.audio = this.setAudio(audio);
+        
         this.pubDate = pubDate;
         this.link = link;
         this.description = description;
+    }
+
+    setAudio(audio){
+        return {
+            url: DomainName + 'youtube/media/' + audio.url,
+            length: audio.length ,
+            type: audio.type ? audio.type : 'audio/x-m4a'
+        }
     }
 
     format(){
@@ -23,11 +33,15 @@ class Item{
                 _attrs: {
                     url: this.audio.url,
                     length: this.audio.length,
-                    type: this.audio.type
+                    type: this.audio.type ? this.audio.type : 'audio/x-m4a'
                 }
             },
             {
-                'guid': this.guid
+                _name: 'guid',
+                _attrs: {
+                    isPermaLink: false,
+                },
+                _content: guid
             },
             {
                 'pubDate': this.pubDate
@@ -101,11 +115,6 @@ class Feed{
 
     addItem(item){
         let {title, guid, audio, pubDate, link, description} = item;
-        audio = {
-            url: 'this.audio.url',
-            length: 'this.audio.length',
-            type: 'this.audio.type'
-        }
         this.items.push(new Item(title, guid, audio, pubDate, link, description));
     }
 
@@ -127,7 +136,7 @@ class Feed{
     }
 
     updateFile(fileName){
-        this.writeFile(fileName);
+        return this.writeFile(fileName);
     }
     
     genContent() {

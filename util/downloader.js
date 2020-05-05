@@ -2,6 +2,8 @@ const fs = require('fs');
 const ytdl = require('ytdl-core');
 const Str = require('./str');
 const File = require('./myFile');
+const {Path} = require('../consts');
+
 
 class Downloader{
     constructor(){
@@ -28,14 +30,13 @@ class YoutubeDownloader extends Downloader{
         super();
     }
 
-    async downloadItems(items){
+    downloadItems(items){
         let promises = [];
         for(let item of items){
-            // let {title, guid, audio, pubDate, link, description} = item;
-            let exist = await new File().isExist(item.title);
-            if(!exist){
-                promises.push(this.downloadItem(item));
-            }
+            // let exist = await new File().isExist(Path.media + item.title);
+            // if(!exist){
+            promises.push(this.downloadItem(item));
+            // }
         }
         return promises;
     }
@@ -48,7 +49,7 @@ class YoutubeDownloader extends Downloader{
         super.download(url, name, extension);
         name  = super.checkName(name);
         extension = this.checkExtension(extension);
-        let fileName = name + extension;
+        let fileName = Path.media + name + extension;
 
         return new Promise((resolve, reject) => {
             const stream = ytdl(url, {filter: 'audioonly'}).pipe(fs.createWriteStream(fileName));
@@ -63,23 +64,11 @@ class YoutubeDownloader extends Downloader{
 
             stream.on('finish', () => {
                 console.log('download finish');
-                resolve(fileName);
+                let size = new File().getSize(fileName);
+                item.audio.url = name;
+                item.audio.size = size ? size : 655555;
+                resolve(item);
             })
-
-    
-
-            // stream.then((data) => {
-            //     console.warn(data);
-            //     console.log('download succeed url: [%s]', url);
-            //     // let audio = {
-            //     //     'title': name, 
-            //     //     'size': size
-            //     // };
-            //     resolve(true);
-            // }).catch(err => {
-            //     console.error('download failed url: [%s], reason: [%s]', url, err);
-            //     reject(err);
-            // })
         })
     }
 

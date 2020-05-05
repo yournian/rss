@@ -40,6 +40,15 @@ class File{
             });
         })
     }
+
+    getSize(name){
+        try{
+            let stats = fs.statSync(name);
+            return stats.size;
+        }catch(err){
+            console.error('getSize failed: ', err);
+        }
+    }
 }
 
 module.exports = File;
