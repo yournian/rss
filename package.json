@@ -25,6 +25,11 @@
   },
   "homepage": "https://github.com/yournian/youtube_podcast#readme",
   "dependencies": {
+    "jstoxml": "^1.6.5",
+    "log4js": "^6.2.1",
+    "request": "^2.88.2",
+    "uuid": "^7.0.3",
+    "xml2js": "^0.4.23",
     "ytdl-core": "^2.1.0"
   }
 }
