@@ -83,7 +83,7 @@ class YoutubeDownloader extends Downloader{
         })
     }
 
-    getBasicInfo(){
+    getBasicInfo(url){
         return ytdl.getBasicInfo(url, {filter: 'audioonly'})
     }
 
