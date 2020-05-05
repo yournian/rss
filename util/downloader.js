@@ -59,7 +59,7 @@ class YoutubeDownloader extends Downloader{
 
             stream.on('error', (data) => {
                 reject(data);
-                console.error('download failed url: [%s], reason: [%s]', url, err);
+                console.error('download failed url: [%s], reason: [%s]', url, data);
             })
 
             stream.on('finish', () => {
