@@ -51,7 +51,7 @@ class YoutubeDownloader extends Downloader{
         let fileName = name + extension;
 
         return new Promise((resolve, reject) => {
-            const stream = ytdl(url, {filter: 'audio'}).pipe(fs.createWriteStream(fileName));
+            const stream = ytdl(url, {filter: 'audioonly'}).pipe(fs.createWriteStream(fileName));
             stream.on('close', () => {
                 console.log('download close');
             })
