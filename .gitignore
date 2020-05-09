@@ -105,3 +105,4 @@ dist
 .DS_Store
 media/*
 feed/*
+.vscode/launch.json
