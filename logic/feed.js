@@ -2,6 +2,7 @@ const {RssXml} = require('./xml');
 const File = require('../util/myFile');
 let file = new File();
 const {DomainName, Path} = require('../consts');
+const logger = require('../util/logger').getLogger();
 
 
 class Item{
@@ -24,6 +25,7 @@ class Item{
     }
 
     format(){
+        logger.debug('====feed format====');
         let formation = [
             {
                 'title': this.title
@@ -72,10 +74,12 @@ class Feed{
     }
 
     generateEmpty(info){
+        logger.debug('====feed generateEmpty====');
         this.setInfo(info);
     }
 
     setInfo(info){
+        logger.debug('====feed setInfo====');
         this.info.title = info.title ? info.title : '';
         this.info.link = info.link ? info.link : '';
         this.info.href = info.href ? info.href : '';
@@ -84,11 +88,14 @@ class Feed{
     }
 
     async readFromFile(name){
+        logger.debug('====feed readFromFile====');
         let fileName = Path.feed + name + '.xml'
         let exist = await file.isExist(fileName);
         if(!exist){
+            logger.debug('file[%s] no exists', name);
             return false;
         }else{
+            logger.debug('file[%s] exists', name);
             let content = await file.read(fileName);
             await this.rebuild(content);
             return true;
@@ -96,6 +103,7 @@ class Feed{
     }
 
     async rebuild(content){
+        logger.debug('====feed rebuild====');
         let xml = new RssXml();
         let {info, items} = await xml.parse(content);
         this.setInfo(info);
@@ -103,10 +111,12 @@ class Feed{
     }
 
     getInfo(){
+        logger.debug('====feed getInfo====');
         return this.info;    
     }
 
     addItems(items){
+        logger.debug('====feed addItems====');
         if(items.length == 0) return;
         for(let item of items){
             this.addItem(item);
@@ -114,11 +124,13 @@ class Feed{
     }
 
     addItem(item){
+        logger.debug('====feed addItem====');
         let {title, guid, audio, pubDate, link, description} = item;
         this.items.push(new Item(title, guid, audio, pubDate, link, description));
     }
 
     writeFile(fileName) {
+        logger.debug('====feed writeFile====');
         const xmlOptions = {
             header: true,
             indent: '  '
@@ -136,10 +148,12 @@ class Feed{
     }
 
     updateFile(fileName){
+        logger.debug('====feed updateFile====');
         return this.writeFile(fileName);
     }
     
     genContent() {
+        logger.debug('====feed genContent====');
         let content = {
             'channel': [
                 {
@@ -171,23 +185,8 @@ class Feed{
         }
         return content;
     }
-
-    update(){
-
-    }
-}
-
-class PodcastFeed extends Feed{
-    constructor(){
-        super();
-    }
-
-    update(){
-
-    }
 }
 
 module.exports = {
-    Feed,
-    PodcastFeed
+    Feed
 };

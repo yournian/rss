@@ -2,6 +2,7 @@ const xml2js = require('xml2js');
 const { toXML } = require('jstoxml');
 const File = require('../util/myFile');
 let file = new File();
+const logger = require('../util/logger').getLogger();
 
 class Xml{
     constructor(){
@@ -9,11 +10,13 @@ class Xml{
     }
 
     async parseFile(filename){
+        logger.debug('====xml parseFile====');
         let data = await file.read(filename);
         return this.parse(data);
     }
 
     async parse(content){
+        logger.debug('====xml parse====');
         let parser = new xml2js.Parser();
         let result;
         try{
@@ -25,6 +28,7 @@ class Xml{
     }
 
     async write(content, filename){
+        logger.debug('====xml write====');
         try{
              await file.save(filename, content);
              return true;
@@ -35,6 +39,7 @@ class Xml{
      }
 
     async writeObj(obj, option, filename){
+        logger.debug('====xml writeObj====');
         try{
             let content = toXML(obj, option);
             await file.save(filename, content);
@@ -54,6 +59,7 @@ class RssXml extends Xml{
     }
 
     handle(result){
+        logger.debug('====rssxml handle====');
         try{
             let channel = result.rss.channel[0];
             let info = {
@@ -70,7 +76,7 @@ class RssXml extends Xml{
                     // todo
                     'title': item.title[0].trim(),
                     'guid': item.guid ? item.guid[0] : '',
-                    'description': item.description[0].trim(),
+                    'description': '', //item.description[0].trim(),
                     'pubDate': item.pubDate[0].trim(),
                     'link': item.link[0].trim(),
                     'audio': {}

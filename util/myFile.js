@@ -21,10 +21,8 @@ class File{
         return new Promise((resolve, reject) => {
             fs.writeFile(name, content, (err) => {
                 if(err) {
-                    console.error('写入失败: ', err);
-                    reject();
+                    reject(err);
                 } else {
-                    console.debug('写入成功');
                     resolve();
                 }
             });
@@ -35,10 +33,8 @@ class File{
         return new Promise((resolve, reject) => {
             fs.readFile(name, {flag: 'r', encoding: 'utf8'}, function (err, data) {
                 if(err) {
-                    console.error('读取文件失败: ', err);
-                    reject();
+                    reject(err);
                 }else{
-                    console.log('读取文件成功');
                     resolve(data);
                 }
             });
@@ -46,12 +42,8 @@ class File{
     }
 
     getSize(name){
-        try{
-            let stats = fs.statSync(name);
-            return stats.size;
-        }catch(err){
-            console.error('getSize failed: ', err);
-        }
+        let stats = fs.statSync(name);
+        return stats.size;
     }
 }
 

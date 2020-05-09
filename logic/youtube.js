@@ -1,6 +1,7 @@
 const File = require('../util/myFile');
 const {RssXml} = require('./xml');
 const {HtmlDownloader} = require('../util/html');
+const logger = require('../util/logger').getLogger();
 
 class Item{
     constructor(title, guid, audio, pubDate, link, description){
@@ -50,29 +51,35 @@ class Youtube{
     }
 
     getUpdate(channel){
+        logger.debug('====youtube getUpdate====');
         return this.rssHub(channel);
     }
 
     async rssHub(channel){
+        logger.debug('====youtube rssHub====');
         const prefix = 'https://rsshub.app/youtube/channel/';
         let url = prefix + channel;
-        url = 'http://43.255.30.23/feed/rss.xml';
+        // test 
+        // url = 'http://43.255.30.23/feed/rss.xml';
         let htmlBody = await this.readFromUrl(url);
         // let htmlBody = await this.readFromFile('./feed/rsshub.xml');
         await this.parse(htmlBody.content);
     }
 
     readFromUrl(url){
+        logger.debug('====youtube readFromUrl====');
         let htmlDownlaoder = new HtmlDownloader();
         return htmlDownlaoder.download(url);
     }
 
     readFromFile(fileName){
+        logger.debug('====youtube readFromFile====');
         let file = new File();
         return file.read(fileName);
     }
 
     async parse(htmlBody){
+        logger.debug('====youtube parse====');
         try{
             let xml = new RssXml();
             let {info, items} = await xml.parse(htmlBody);
@@ -83,6 +90,7 @@ class Youtube{
     }
 
     addVideos(items){
+        logger.debug('====youtube addVideos====');
         if(items.length == 0) return;
         for(let item of items){
             this.addVideo(item);
@@ -90,6 +98,7 @@ class Youtube{
     }
 
     addVideo(item){
+        logger.debug('====youtube addVideo====');
         let {title, guid, audio, pubDate, link, description} = item;
         this.videos.push(new Item(title, guid, audio, pubDate, link, description));
     }

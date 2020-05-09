@@ -1,6 +1,6 @@
-const logger = require('log4js').getLogger();
 const request = require('request');
 const File = require('./myFile');
+const logger = require('./logger').getLogger();
 
 class Html{
     constructor(url, content){
@@ -18,7 +18,7 @@ class HtmlDownloader{
     }
 
     async download(url){
-        logger.info('====download: ', url);
+        logger.debug('====html download====');
         return new Promise((resolve, reject) => {
             request(url, async (error, response, body) => {
                 if (error) {

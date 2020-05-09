@@ -1,3 +1,4 @@
+const logger = require('../util/logger').getLogger();
 const {Feed} = require('./feed');
 const Youtube = require('./youtube');
 const {YoutubeDownloader} = require('../util/downloader');
@@ -15,9 +16,14 @@ let channels = [
 
 async function getUpdate(){
     for(let channel of channels){
+        logger.info('update channel[%s]', channel.name);
         let youtube = new Youtube();
         await youtube.getUpdate(channel.id);
-        if(youtube.videos.length == 0) return;
+        if(youtube.videos.length == 0){
+            logger.info('update channel[%s], no videos', channel.name);
+            return;
+        }
+
 
         let feed = new Feed();
         let result = await feed.readFromFile(channel.name);
@@ -30,22 +36,29 @@ async function getUpdate(){
                 'href': DomainName + 'youtube/feed/' + channel.name + '.xml'
             }
             feed.generateEmpty(info);
+            logger.info('update channel[%s], generate empty feed', channel.name);
         }
         
         let toAddItems = extract(youtube.videos, feed.items);
 
-        if(toAddItems.length == 0) return;
+        if(toAddItems.length == 0){
+            logger.info('update channel[%s], no updates', channel.name);
+            return;
+        }
         
+        // test 暂时最多下载3个
+        toAddItems = toAddItems.slice(0, 3);
         let downloader = new YoutubeDownloader();
         let promises = downloader.downloadItems(toAddItems);
         let items = await Promise.all(promises);
+        items = items;
         feed.addItems(items);
         let path = Path.feed + channel.name + '.xml';
         let succeed = await feed.updateFile(path);
         if(succeed){
-            console.log('update channel[%s] succeed', channel.name);
+            logger.info('update channel[%s] succeed', channel.name);
         }else{
-            console.log('update channel[%s] failed', channel.name);
+            logger.error('update channel[%s] failed', channel.name);
         }
     }
 }
