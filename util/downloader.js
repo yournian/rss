@@ -42,34 +42,51 @@ class YoutubeDownloader extends Downloader{
     }
 
     downloadItem(item){
-        return this.download(item.link, item.title, 'm4a');
+        return this.download(item);
     }
 
-    download(url, name, extension){
-        super.download(url, name, extension);
-        name  = super.checkName(name);
-        extension = this.checkExtension(extension);
+    download(item){
+        super.download(item.link, item.title);
+        let name  = super.checkName(item.title);
+        let extension = this.checkExtension('.m4a');
         let fileName = Path.media + name + extension;
-
-        return new Promise((resolve, reject) => {
-            const stream = ytdl(url, {filter: 'audioonly'}).pipe(fs.createWriteStream(fileName));
-            stream.on('close', () => {
-                console.log('download close');
-            })
-
-            stream.on('error', (data) => {
-                reject(data);
-                console.error('download failed url: [%s], reason: [%s]', url, data);
-            })
-
-            stream.on('finish', () => {
-                console.log('download finish');
+        if(new File().isExistSync(fileName)){
+            return new Promise((resolve, reject) => {
                 let size = new File().getSize(fileName);
-                item.audio.url = name;
+                item.audio.url = name + extension;
                 item.audio.size = size ? size : 655555;
                 resolve(item);
             })
-        })
+        }else{
+
+            return new Promise((resolve, reject) => {
+                new File().save(fileName, 'test').then(() => {
+                    let size = new File().getSize(fileName);
+                    item.audio.url = name + extension;
+                    item.audio.size = size ? size : 655555;
+                    resolve(item);
+                }).catch((err) => {
+                    reject(err);
+                })
+                // const stream = ytdl(url, {filter: 'audioonly'}).pipe(fs.createWriteStream(fileName));
+                // stream.on('close', () => {
+                //     console.log('download close');
+                // })
+    
+                // stream.on('error', (data) => {
+                //     reject(data);
+                //     console.error('download failed url: [%s], reason: [%s]', url, data);
+                // })
+    
+                // stream.on('finish', () => {
+                //     console.log('download finish');
+                //     let size = new File().getSize(fileName);
+                //     item.audio.url = name + extension;
+                //     item.audio.size = size ? size : 655555;
+                //     resolve(item);
+                // })
+            })
+        }
     }
 
     getBasicInfo(url){

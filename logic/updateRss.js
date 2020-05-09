@@ -2,6 +2,8 @@ const {Feed} = require('./feed');
 const Youtube = require('./youtube');
 const {YoutubeDownloader} = require('../util/downloader');
 const {DomainName} = require('../consts');
+const {Path} = require('../consts');
+
 
 let channels = [
     {
@@ -38,7 +40,8 @@ async function getUpdate(){
         let promises = downloader.downloadItems(toAddItems);
         let items = await Promise.all(promises);
         feed.addItems(items);
-        let succeed = await feed.updateFile(filename);
+        let path = Path.feed + channel.name + '.xml';
+        let succeed = await feed.updateFile(path);
         if(succeed){
             console.log('update channel[%s] succeed', channel.name);
         }else{

@@ -15,7 +15,12 @@ class Xml{
 
     async parse(content){
         let parser = new xml2js.Parser();
-        let result = await parser.parseStringPromise(content);
+        let result;
+        try{
+            result = await parser.parseStringPromise(content);
+        }catch(err){
+            console.error(err);
+        }
         return this.handle(result);
     }
 
@@ -62,11 +67,13 @@ class RssXml extends Xml{
             let items = [];
             channel.item.forEach(item => {
                 items.push({
+                    // todo
                     'title': item.title[0].trim(),
-                    'guid': item.guid[0],
+                    'guid': item.guid ? item.guid[0] : '',
                     'description': item.description[0].trim(),
                     'pubDate': item.pubDate[0].trim(),
-                    'link': item.link[0].trim()
+                    'link': item.link[0].trim(),
+                    'audio': {}
                 });
             });
 

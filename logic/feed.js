@@ -1,7 +1,7 @@
 const {RssXml} = require('./xml');
 const File = require('../util/myFile');
 let file = new File();
-const {DomainName} = require('../consts');
+const {DomainName, Path} = require('../consts');
 
 
 class Item{
@@ -18,7 +18,7 @@ class Item{
     setAudio(audio){
         return {
             url: DomainName + 'youtube/media/' + audio.url,
-            length: audio.length ,
+            length: audio.length ? audio.length : 65555,
             type: audio.type ? audio.type : 'audio/x-m4a'
         }
     }
@@ -36,13 +36,13 @@ class Item{
                     type: this.audio.type ? this.audio.type : 'audio/x-m4a'
                 }
             },
-            {
-                _name: 'guid',
-                _attrs: {
-                    isPermaLink: false,
-                },
-                _content: guid
-            },
+            // {
+            //     _name: 'guid',
+            //     _attrs: {
+            //         isPermaLink: false,
+            //     },
+            //     _content: guid
+            // },
             {
                 'pubDate': this.pubDate
             },
@@ -83,14 +83,14 @@ class Feed{
         this.info.language = info.language ? info.language : 'zh-cn';
     }
 
-    async readFromFile(channel){
-        let fileName = __dirname + '/feed/' + channel.name + '.xml'
+    async readFromFile(name){
+        let fileName = Path.feed + name + '.xml'
         let exist = await file.isExist(fileName);
         if(!exist){
             return false;
         }else{
             let content = await file.read(fileName);
-            this.rebuild(content);
+            await this.rebuild(content);
             return true;
         }
     }

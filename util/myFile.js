@@ -13,6 +13,10 @@ class File{
         })
     }
 
+    isExistSync(path){
+        return fs.existsSync(path);
+    }
+
     save(name, content){
         return new Promise((resolve, reject) => {
             fs.writeFile(name, content, (err) => {
