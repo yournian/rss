@@ -72,6 +72,7 @@ class YoutubeDownloader extends Downloader{
                 // end 测试
 
                 // todo 优化logger
+                let url = item.link;
                 const stream = ytdl(url, {filter: 'audioonly'}).pipe(fs.createWriteStream(fileName));
                 stream.on('close', () => {
                     console.log('download close');
