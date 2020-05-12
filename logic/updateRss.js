@@ -28,6 +28,7 @@ async function getUpdate(){
         let feed = new Feed();
         let result = await feed.readFromFile(channel.name);
         if(!result){
+            // todo：获取频道头像
             let info ={
                 'title': channel.name,
                 'link': 'https://www.youtube.com/channel/' + channel.id,

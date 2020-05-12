@@ -11,11 +11,14 @@ const log4js = {
         }
     },
     categories: {
-        sys: { appenders: ['sys'], level: 'debug' },
-        default: { appenders: ['console', 'sys'], level: 'debug' },
+        sys: { appenders: ['sys'], level: 'info' },
+        default: { appenders: ['console', 'sys'], level: 'info' },
     }
 }
 
+const YOUTUBE_KEY = '';
+
 module.exports = {
-    log4js
+    log4js,
+    YOUTUBE_KEY
 }

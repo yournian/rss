@@ -2,6 +2,8 @@ const File = require('../util/myFile');
 const {RssXml} = require('./xml');
 const {HtmlDownloader} = require('../util/html');
 const logger = require('../util/logger').getLogger();
+const {YOUTUBE_KEY} = require('../config');
+const request = require('request');
 
 class Item{
     constructor(title, guid, audio, pubDate, link, description){
@@ -101,6 +103,27 @@ class Youtube{
         logger.debug('====youtube addVideo====');
         let {title, guid, audio, pubDate, link, description} = item;
         this.videos.push(new Item(title, guid, audio, pubDate, link, description));
+    }
+
+    getChannelInfo(parts, id){
+        let part = parts.join(',');
+        part = part ? part : 'snippet';
+        let key = YOUTUBE_KEY;
+        let url = `https://www.googleapis.com/youtube/v3/channels?part=${part}&id=${id}&key=${key}`;
+        
+        return new Promise((resolve, reject) => {
+            request(url, (error, response, body) => {
+                if (error) {
+                    logger.error('getChannelInfo failed: ', error);
+                    reject(error);
+                }else{
+                    logger.info('getChannelInfo scuueed');
+                    resolve(body);
+                }
+            })
+        })
+
+        // https://www.googleapis.com/youtube/v3/channels?part=snippet&id=UCghLs6s95LrBWOdlZUCH4qw&key=AIzaSyC7AB01-vJWxC6bRVGwj3jLA56hFzWfylY
     }
 }
 

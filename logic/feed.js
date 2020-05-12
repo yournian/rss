@@ -54,10 +54,32 @@ class Item{
             {
                 'description': this.description
             }
+            // ,
+            // {
+            //     'image': this.image.format()
+            // }
         ]
         return formation;
     }
 
+}
+
+class Image{
+    constructor(){
+        this.thumbnail = '';
+        this.title = '';
+        this.link = '';
+    }
+
+    setInfo(thumbnail, title, link){
+        this.thumbnail = thumbnail ? thumbnail : '';
+        this.title = title ? title: '';
+        this.link = link ? title : '';
+    }
+
+    format(){
+
+    }
 }
 
 class Feed{
@@ -67,7 +89,8 @@ class Feed{
             'link': '',
             'language': '',
             'description': '',
-            'href': ''
+            'href': '',
+            'image': new Image()
             // 'items': []
         }
         this.items = [];
@@ -85,6 +108,7 @@ class Feed{
         this.info.href = info.href ? info.href : '';
         this.info.description = info.description ? info.description : '';
         this.info.language = info.language ? info.language : 'zh-cn';
+        this.image.setInfo('', this.info.title, this.info.link);
     }
 
     async readFromFile(name){
