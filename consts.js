@@ -8,7 +8,7 @@ const CHANNEL = {
         },
     }
 }
-const DomainName = 'http://yournian.info/'; 
+const DomainName = 'http://yournian.top/'; 
 const Path = {
     'media': './media/',
     'feed': './feed/'
