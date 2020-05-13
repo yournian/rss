@@ -33,11 +33,20 @@ class YoutubeDownloader extends Downloader{
     downloadItems(items){
         let promises = [];
         for(let item of items){
-            // todo 判断重复视频
-            // let exist = await new File().isExist(Path.media + item.title);
-            // if(!exist){
-            promises.push(this.downloadItem(item));
-            // }
+            let name = item.title + '.m4a';
+            let path = Path.media + name;
+            let exist = await new File().isExist(path);
+            if(!exist){
+                promises.push(this.downloadItem(item));
+            }else{
+                logger.debug('file[%s] exist skip dowmload', item.title);
+                let size = new File().getSize(path);
+                item.audio.url = name;
+                item.audio.size = size ? size : 655555;
+                promises.push(new Promise((resolve, reject) => {
+                    resolve(item);
+                }));
+            }
         }
         return promises;
     }
