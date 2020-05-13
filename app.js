@@ -1,6 +1,8 @@
 const schedule = require('./util/schedule');
 const updateRss = require('./logic/updateRss');
 
+global.test = false;
+
 function update(){
     updateRss();
 }

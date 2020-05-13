@@ -48,6 +48,7 @@ class YoutubeDownloader extends Downloader{
         let extension = this.checkExtension('.m4a');
         let fileName = Path.media + name + extension;
         if(new File().isExistSync(fileName)){
+            console.log('download escape : already existed file[%s]', name);
             return new Promise((resolve, reject) => {
                 let size = new File().getSize(fileName);
                 item.audio.url = name + extension;
@@ -56,36 +57,37 @@ class YoutubeDownloader extends Downloader{
             })
         }else{
             return new Promise((resolve, reject) => {
-                // 测试，跳过下载直接写入一个文件
-                // new File().save(fileName, 'test').then(() => {
-                //     let size = new File().getSize(fileName);
-                //     item.audio.url = name + extension;
-                //     item.audio.size = size ? size : 655555;
-                //     resolve(item);
-                // }).catch((err) => {
-                //     reject(err);
-                // })
-                // end 测试
-
-                // todo 优化logger
-                let url = item.link;
-                const stream = ytdl(url, {filter: 'audioonly'}).pipe(fs.createWriteStream(fileName));
-                stream.on('close', () => {
-                    console.log('download close');
-                })
-    
-                stream.on('error', (data) => {
-                    reject(data);
-                    console.error('download failed url: [%s], reason: [%s]', url, data);
-                })
-    
-                stream.on('finish', () => {
-                    console.log('download finish');
-                    let size = new File().getSize(fileName);
-                    item.audio.url = name + extension;
-                    item.audio.size = size ? size : 655555;
-                    resolve(item);
-                })
+                if(global.test){
+                    // 测试，跳过下载直接写入一个文件
+                    new File().save(fileName, 'test').then(() => {
+                        let size = new File().getSize(fileName);
+                        item.audio.url = name + extension;
+                        item.audio.size = size ? size : 655555;
+                        resolve(item);
+                    }).catch((err) => {
+                        reject(err);
+                    })
+                }else{
+                    // todo 优化logger
+                    let url = item.link;
+                    const stream = ytdl(url, {filter: 'audioonly'}).pipe(fs.createWriteStream(fileName));
+                    stream.on('close', () => {
+                        console.log('download close');
+                    })
+        
+                    stream.on('error', (data) => {
+                        reject(data);
+                        console.error('download failed url: [%s], reason: [%s]', url, data);
+                    })
+        
+                    stream.on('finish', () => {
+                        console.log('download finish');
+                        let size = new File().getSize(fileName);
+                        item.audio.url = name + extension;
+                        item.audio.size = size ? size : 655555;
+                        resolve(item);
+                    })
+                }
             })
         }
     }

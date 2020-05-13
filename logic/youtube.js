@@ -61,10 +61,11 @@ class Youtube{
         logger.debug('====youtube rssHub====');
         const prefix = 'https://rsshub.app/youtube/channel/';
         let url = prefix + channel;
-        // test 
-        // url = 'http://43.255.30.23/feed/rss.xml';
+        if(global.test){
+            // test 
+            url = 'http://43.255.30.23/youtube/feed/test.xml';
+        }
         let htmlBody = await this.readFromUrl(url);
-        // let htmlBody = await this.readFromFile('./feed/rsshub.xml');
         await this.parse(htmlBody.content);
     }
 
@@ -106,7 +107,14 @@ class Youtube{
     }
 
     async getImage(id){
-        let info = await getChannelInfo(parts, id);
+        let image = {
+            'thumbnail' : '',
+            'title': '',
+            'link' : ''
+        }
+        let info = await this.getChannelInfo(['snippet'], id);
+        if(!info) return image;
+
         try{
             let item = info.items[0];
             let image = {
@@ -124,6 +132,11 @@ class Youtube{
     }
 
     getChannelInfo(parts, id){
+        if(global.test){
+            return new Promise((resolve, reject) => {
+                resolve(null);
+            })
+        }
         let part = parts.join(',');
         part = part ? part : 'snippet';
         let key = YOUTUBE_KEY;
