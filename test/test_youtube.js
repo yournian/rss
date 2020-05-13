@@ -11,7 +11,7 @@ describe('getChannelInfo', () => {
         try{
             let data = await youtube.getChannelInfo(parts, id, YOUTUBE_KEY);
             console.log(data);
-            expect(data.id).to.be.equal(id);
+            expect(data.items[0].id).to.be.equal(id);
         }catch(err){
             console.log(err);
             expect(true).to.be.equal(false);
