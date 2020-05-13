@@ -105,6 +105,24 @@ class Youtube{
         this.videos.push(new Item(title, guid, audio, pubDate, link, description));
     }
 
+    async getImage(id){
+        let info = await getChannelInfo(parts, id);
+        try{
+            let item = info.items[0];
+            let image = {
+                'thumbnail' : item.snippet.thumbnails.default.url,
+                'title': item.snippet.title,
+                'link' : 'https://www.youtube.com/channel/' + item.id
+            }
+            logger.info('youtube getImage succeed');
+            return image;
+        }catch(err){
+            logger.error('youtube getImage failed: ', err);
+            return null;
+        }
+
+    }
+
     getChannelInfo(parts, id){
         let part = parts.join(',');
         part = part ? part : 'snippet';

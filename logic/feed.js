@@ -71,7 +71,7 @@ class Image{
         this.link = '';
     }
 
-    setInfo(thumbnail, title, link){
+    setInfo({thumbnail, title, link}){
         this.thumbnail = thumbnail ? thumbnail : '';
         this.title = title ? title: '';
         this.link = link ? title : '';
@@ -102,13 +102,16 @@ class Feed{
     }
 
     setInfo(info){
+        let {title, link, href, description, language, image} = info
         logger.debug('====feed setInfo====');
-        this.info.title = info.title ? info.title : '';
-        this.info.link = info.link ? info.link : '';
-        this.info.href = info.href ? info.href : '';
-        this.info.description = info.description ? info.description : '';
-        this.info.language = info.language ? info.language : 'zh-cn';
-        this.image.setInfo('', this.info.title, this.info.link);
+        this.info.title = title ? title : '';
+        this.info.link = link ? link : '';
+        this.info.href = href ? href : '';
+        this.info.description = description ? description : '';
+        this.info.language = language ? language : 'zh-cn';
+        if(image){
+            this.info.image.setInfo(image);
+        }
     }
 
     async readFromFile(name){
@@ -200,7 +203,16 @@ class Feed{
                 },
                 {
                     'description': this.info.description
-                }
+                },
+                {
+                    '_name': 'image',
+                    '_attrs': {
+                        'url': this.info.image.thumbnail,
+                        'title': this.info.image.title,
+                        'link': this.info.image.link
+                    },
+                    'content': ''
+                },
             ]
         };
 
