@@ -3,7 +3,7 @@ const Youtube = require('../logic/youtube');
 const {YOUTUBE_KEY} = require('../config');
 const {CHANNEL} = require('../consts');
 
-describe('getChannelInfo', () => {
+describe('youtube', () => {
     it('getChannelInfo', async () => {
         let youtube = new Youtube();
         let parts = ['snippet'];
@@ -12,6 +12,19 @@ describe('getChannelInfo', () => {
             let data = await youtube.getChannelInfo(parts, id, YOUTUBE_KEY);
             console.log(data);
             expect(data.items[0].id).to.be.equal(id);
+        }catch(err){
+            console.log(err);
+            expect(true).to.be.equal(false);
+        }
+    });
+
+    it.only('getImage', async () => {
+        let youtube = new Youtube();
+        let id = CHANNEL['stone'].id;
+        try{
+            let image = await youtube.getImage(id);
+            console.log(image);
+            expect(image.title).to.be.equal('stone');
         }catch(err){
             console.log(err);
             expect(true).to.be.equal(false);
