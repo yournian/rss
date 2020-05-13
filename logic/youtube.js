@@ -140,8 +140,6 @@ class Youtube{
                 }
             })
         })
-
-        // https://www.googleapis.com/youtube/v3/channels?part=snippet&id=UCghLs6s95LrBWOdlZUCH4qw&key=AIzaSyC7AB01-vJWxC6bRVGwj3jLA56hFzWfylY
     }
 }
 
