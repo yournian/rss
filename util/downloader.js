@@ -35,7 +35,7 @@ class YoutubeDownloader extends Downloader{
         for(let item of items){
             let name = item.title + '.m4a';
             let path = Path.media + name;
-            let exist = await new File().isExist(path);
+            let exist = new File().isExistSync(path);
             if(!exist){
                 promises.push(this.downloadItem(item));
             }else{
