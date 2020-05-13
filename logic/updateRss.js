@@ -7,7 +7,7 @@ const {CHANNEL, DomainName, Path} = require('../consts');
 
 async function getUpdate(){
     for(let cName in CHANNEL){
-        let cID = CHANNEL[cName];
+        let cID = CHANNEL[cName].id;
         logger.info('update channel[%s]', cName);
         let youtube = new Youtube();
         await youtube.getUpdate(cID);
