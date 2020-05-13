@@ -33,20 +33,7 @@ class YoutubeDownloader extends Downloader{
     downloadItems(items){
         let promises = [];
         for(let item of items){
-            let name = item.title + '.m4a';
-            let path = Path.media + name;
-            let exist = new File().isExistSync(path);
-            if(!exist){
-                promises.push(this.downloadItem(item));
-            }else{
-                logger.debug('file[%s] exist skip dowmload', item.title);
-                let size = new File().getSize(path);
-                item.audio.url = name;
-                item.audio.size = size ? size : 655555;
-                promises.push(new Promise((resolve, reject) => {
-                    resolve(item);
-                }));
-            }
+            promises.push(this.downloadItem(item));
         }
         return promises;
     }
