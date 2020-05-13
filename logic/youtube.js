@@ -126,6 +126,7 @@ class Youtube{
             return image;
         }catch(err){
             logger.error('youtube getImage failed: ', err);
+            logger.error('info', info);
             return null;
         }
 
@@ -141,7 +142,7 @@ class Youtube{
         part = part ? part : 'snippet';
         let key = YOUTUBE_KEY;
         let url = `https://www.googleapis.com/youtube/v3/channels?part=${part}&id=${id}&key=${key}`;
-        
+
         return new Promise((resolve, reject) => {
             request(url, (error, response, body) => {
                 if (error) {
