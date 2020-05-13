@@ -116,6 +116,7 @@ class Youtube{
         if(!info) return image;
 
         try{
+            info = JSON.parse(info);
             let item = info.items[0];
             let image = {
                 'thumbnail' : item.snippet.thumbnails.default.url,

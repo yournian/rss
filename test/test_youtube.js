@@ -24,7 +24,7 @@ describe('youtube', () => {
         try{
             let image = await youtube.getImage(id);
             console.log(image);
-            expect(image.title).to.be.equal('stone');
+            expect(image.title).to.be.equal('stone记');
         }catch(err){
             console.log(err);
             expect(true).to.be.equal(false);
