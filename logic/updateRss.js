@@ -6,10 +6,11 @@ const {CHANNEL, DomainName, Path} = require('../consts');
 
 
 async function getUpdate(){
-    for(let [cName, cId] in Object.entries(CHANNEL)){
+    for(let cName in CHANNEL){
+        let cID = CHANNEL[cName];
         logger.info('update channel[%s]', cName);
         let youtube = new Youtube();
-        await youtube.getUpdate(cId);
+        await youtube.getUpdate(cID);
         if(youtube.videos.length == 0){
             logger.info('update channel[%s], no videos', cName);
             return;
@@ -19,10 +20,10 @@ async function getUpdate(){
         let feed = new Feed();
         let result = await feed.readFromFile(cName);
         if(!result){
-            let image = await youtube.getImage(cId);
+            let image = await youtube.getImage(cID);
             let info ={
                 'title': cName,
-                'link': 'https://www.youtube.com/channel/' + cId,
+                'link': 'https://www.youtube.com/channel/' + cID,
                 'language': 'zh-cn',
                 'description': cName + ' 的 Youtube 视频',
                 'href': DomainName + 'youtube/feed/' + cName + '.xml',
