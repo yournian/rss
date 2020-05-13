@@ -74,7 +74,7 @@ class Image{
     setInfo({thumbnail, title, link}){
         this.thumbnail = thumbnail ? thumbnail : '';
         this.title = title ? title: '';
-        this.link = link ? title : '';
+        this.link = link ? link : '';
     }
 
     format(){
