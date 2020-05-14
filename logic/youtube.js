@@ -94,6 +94,7 @@ class Youtube{
             return items;
         }catch(err){
             logger.error('youtube parse html failed: ', err);
+            return [];
         }
     }
 

@@ -15,6 +15,7 @@ async function getUpdate(){
             logger.info('update channel[%s], no videos', cName);
             return;
         }
+        logger.info('update channel[%s], [%d] uodates', cName, youtube.videos.length);
 
 
         let feed = new Feed();
