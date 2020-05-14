@@ -9,5 +9,5 @@ function update(){
 
 update();
 // 每隔6小时运行一次
-schedule.repeat('* */6 * * *', update);
+schedule.repeat('01 */6 * * *', update);
 
