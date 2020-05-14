@@ -1,5 +1,5 @@
 const expect = require('chai').expect;
-const {Feed} = require('../logic/feed');
+const {Feed, Item} = require('../logic/feed');
 
 describe('feed', () => {
     let feed = new Feed();
@@ -18,7 +18,7 @@ describe('feed', () => {
         };
 
         feed.generateEmpty(info);
-        console.log(feed.info);
+        feed.writeFile('test.xml');
         expect(feed.info.title).to.be.equal(info.title);
     });
 
@@ -41,6 +41,26 @@ describe('feed', () => {
         console.log(feed.items);
     })
 
-    // feed.writeFile('podcast.xml');
+    it('sortItems', async () => {
+        let feed = new Feed();
+        let item1 = new Item('title', 'guid', {}, 'Tue, 12 May 2020 23:00:01 GMT', 'link', 'description');
+        let item2 = new Item('title', 'guid', {}, 'Tue, 12 May 2020 23:00:03 GMT', 'link', 'description');    
+        let item3 = new Item('title', 'guid', {}, 'Tue, 12 May 2020 23:00:02 GMT', 'link', 'description');    
+        
+        feed.addItems([item1, item2, item3]);
+        feed.sortItems();
+        expect(feed.items[0].pubDate).to.be.equal(item2.pubDate);
+    })
+
+})
+
+
+describe('item', () => {
+    let item1 = new Item('title', 'guid', {}, 'Tue, 12 May 2020 23:39:32 GMT', 'link', 'description');
+    let item2 = new Item('title', 'guid', {}, 'Tue, 12 May 2020 23:25:43 GMT', 'link', 'description');
+
+    it('isLaterThen', () => {
+        expect(item1.isLaterThen(item2)).to.be.equal(true);
+    })
 
 })

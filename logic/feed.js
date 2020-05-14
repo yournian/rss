@@ -16,6 +16,10 @@ class Item{
         this.description = description;
     }
 
+    isLaterThen(item){
+        return new Date(this.pubDate) > new Date(item.pubDate);
+    }
+
     setAudio(audio){
         return {
             url: DomainName + 'youtube/media/' + audio.url,
@@ -90,6 +94,7 @@ class Feed{
             'language': '',
             'description': '',
             'href': '',
+            'pubDate': null,
             'image': new Image()
             // 'items': []
         }
@@ -102,13 +107,14 @@ class Feed{
     }
 
     setInfo(info){
-        let {title, link, href, description, language, image} = info
+        let {title, link, href, description, language, pubDate, image} = info
         logger.debug('====feed setInfo====');
         this.info.title = title ? title : '';
         this.info.link = link ? link : '';
         this.info.href = href ? href : '';
         this.info.description = description ? description : '';
         this.info.language = language ? language : 'zh-cn';
+        this.info.pubDate = pubDate ? pubDate : new Date();
         if(image){
             this.info.image.setInfo(image);
         }
@@ -176,6 +182,7 @@ class Feed{
 
     updateFile(fileName){
         logger.debug('====feed updateFile====');
+        this.info.pubDate = new Date();
         return this.writeFile(fileName);
     }
     
@@ -205,6 +212,9 @@ class Feed{
                     'description': this.info.description
                 },
                 {
+                    'pubDate': this.info.pubDate
+                },
+                {
                     'image': {
                         'url': this.info.image.thumbnail,
                         'title': this.info.image.title,
@@ -214,13 +224,19 @@ class Feed{
             ]
         };
 
+        this.sortItems();
         for(let item of this.items){
             content.channel.push({'item': item.format()});
         }
         return content;
     }
+
+    sortItems(){
+       this.items.sort((a, b) => b.isLaterThen(a));
+    }
 }
 
 module.exports = {
-    Feed
+    Feed,
+    Item
 };
