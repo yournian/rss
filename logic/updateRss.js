@@ -15,8 +15,6 @@ async function getUpdate(){
             logger.info('update channel[%s], no videos', cName);
             return;
         }
-        logger.info('update channel[%s], [%d] uodates', cName, youtube.videos.length);
-
 
         let feed = new Feed();
         let result = await feed.readFromFile(cName);
@@ -39,10 +37,12 @@ async function getUpdate(){
         if(toAddItems.length == 0){
             logger.info('update channel[%s], no updates', cName);
             return;
+        }else{
+            logger.info('update channel[%s], [%d] updates', cName, toAddItems.length);
         }
         
-        // test 暂时最多下载3个
-        toAddItems = toAddItems.slice(0, 3);
+        // test 暂时最多下载5个
+        toAddItems = toAddItems.slice(0, 5);
         let downloader = new YoutubeDownloader();
         let promises = downloader.downloadItems(toAddItems);
         let items = await Promise.all(promises);
@@ -62,10 +62,11 @@ async function getUpdate(){
 function extract(newer, older){
     let exist = [];
     older.forEach(element => {
-        exist.push(element.name);
+        exist.push(element.title);
     });
 
-    let newItems = newer.filter(item => !exist.includes(item.name) );
+    let newItems = newer.filter(item => !exist.includes(item.title) );
+
     return newItems;
 }
 
