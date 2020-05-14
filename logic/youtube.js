@@ -66,7 +66,8 @@ class Youtube{
             url = 'http://43.255.30.23/youtube/feed/test.xml';
         }
         let htmlBody = await this.readFromUrl(url);
-        await this.parse(htmlBody.content);
+        let items = await this.parse(htmlBody.content);
+        this.addVideos(items);
     }
 
     readFromUrl(url){
@@ -86,15 +87,18 @@ class Youtube{
         try{
             let xml = new RssXml();
             let {info, items} = await xml.parse(htmlBody);
-            this.addVideos(items);
+            if(items && items.length == 0){
+                logger.warn('youtube addVideos: no video');
+                logger.warn('htmlBody: ', htmlBody);
+            }
+            return items;
         }catch(err){
-            console.error(err);
+            logger.error('youtube parse html failed: ', err);
         }
     }
 
     addVideos(items){
         logger.debug('====youtube addVideos====');
-        if(items.length == 0) return;
         for(let item of items){
             this.addVideo(item);
         }
