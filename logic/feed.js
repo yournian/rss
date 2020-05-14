@@ -205,14 +205,12 @@ class Feed{
                     'description': this.info.description
                 },
                 {
-                    '_name': 'image',
-                    '_attrs': {
+                    'image': {
                         'url': this.info.image.thumbnail,
                         'title': this.info.image.title,
                         'link': this.info.image.link
-                    },
-                    'content': ''
-                },
+                    }
+                }
             ]
         };
 
