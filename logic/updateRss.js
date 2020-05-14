@@ -26,6 +26,7 @@ async function getUpdate(){
                 'language': 'zh-cn',
                 'description': cName + ' 的 Youtube 视频',
                 'href': DomainName + 'youtube/feed/' + cName + '.xml',
+                'pubDate': new Date(),
                 'image': image
             }
             feed.generateEmpty(info);
