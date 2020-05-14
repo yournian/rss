@@ -72,7 +72,7 @@ class YoutubeDownloader extends Downloader{
                     let url = item.link;
                     const stream = ytdl(url, {filter: 'audioonly'}).pipe(fs.createWriteStream(fileName));
                     stream.on('close', () => {
-                        console.log('download close');
+                        console.log('download [%s] close', url);
                     })
         
                     stream.on('error', (data) => {
@@ -81,7 +81,7 @@ class YoutubeDownloader extends Downloader{
                     })
         
                     stream.on('finish', () => {
-                        console.log('download finish');
+                        console.log('download [%s] finish', url);
                         let size = new File().getSize(fileName);
                         item.audio.url = name + extension;
                         item.audio.size = size ? size : 655555;
