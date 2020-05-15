@@ -1,12 +1,12 @@
 const File = require('../util/myFile');
-const {RssXml} = require('./xml');
-const {HtmlDownloader} = require('../util/html');
+const { RssXml } = require('./xml');
+const { HtmlDownloader } = require('../util/html');
 const logger = require('../util/logger').getLogger();
-const {YOUTUBE_KEY} = require('../config');
+const { YOUTUBE_KEY } = require('../config');
 const request = require('request');
 
-class Item{
-    constructor(title, guid, audio, pubDate, link, description){
+class Item {
+    constructor(title, guid, audio, pubDate, link, description) {
         this.title = title;
         this.guid = guid;
         this.audio = audio;
@@ -15,7 +15,7 @@ class Item{
         this.description = description;
     }
 
-    format(){
+    format() {
         let formation = [
             {
                 'title': this.title
@@ -46,22 +46,22 @@ class Item{
 
 }
 
-class Youtube{
-    constructor(){
+class Youtube {
+    constructor() {
         this.info = {};
         this.videos = [];
     }
 
-    getUpdate(channel){
+    getUpdate(channel) {
         logger.debug('====youtube getUpdate====');
         return this.rssHub(channel);
     }
 
-    async rssHub(channel){
+    async rssHub(channel) {
         logger.debug('====youtube rssHub====');
         const prefix = 'https://rsshub.app/youtube/channel/';
         let url = prefix + channel;
-        if(global.test){
+        if (global.test) {
             // test 
             url = 'http://43.255.30.23/youtube/feed/test.xml';
         }
@@ -70,49 +70,49 @@ class Youtube{
         this.addVideos(items);
     }
 
-    readFromUrl(url){
+    readFromUrl(url) {
         logger.debug('====youtube readFromUrl====');
         let htmlDownlaoder = new HtmlDownloader();
         return htmlDownlaoder.download(url);
     }
 
-    readFromFile(fileName){
+    readFromFile(fileName) {
         logger.debug('====youtube readFromFile====');
         let file = new File();
         return file.read(fileName);
     }
 
-    async parse(htmlBody){
+    async parse(htmlBody) {
         logger.debug('====youtube parse====');
-        try{
+        try {
             let xml = new RssXml();
-            let {info, items} = await xml.parse(htmlBody);
-            if(items && items.length == 0){
+            let { info, items } = await xml.parse(htmlBody);
+            if (items && items.length == 0) {
                 logger.warn('youtube addVideos: no video');
                 logger.warn('htmlBody: ', htmlBody);
             }
             return items;
-        }catch(err){
+        } catch (err) {
             logger.error('youtube parse html failed: ', err);
             return [];
         }
     }
 
-    addVideos(items){
+    addVideos(items) {
         logger.debug('====youtube addVideos====');
-        for(let item of items){
+        for (let item of items) {
             this.addVideo(item);
         }
     }
 
-    addVideo(item){
+    addVideo(item) {
         logger.debug('====youtube addVideo====');
-        let {title, guid, audio, pubDate, link, description} = item;
+        let { title, guid, audio, pubDate, link, description } = item;
         this.videos.push(new Item(title, guid, audio, pubDate, link, description));
     }
 
-    async getImage(id){
-        if(global.test){
+    async getImage(id) {
+        if (global.test) {
             return new Promise((resolve, reject) => {
                 resolve({
                     'url': 'url',
@@ -123,33 +123,33 @@ class Youtube{
         }
 
         let image = {
-            'url' : '',
+            'url': '',
             'title': '',
-            'link' : ''
+            'link': ''
         }
 
         let info = await this.getChannelInfo(['snippet'], id);
-        if(!info) return image;
+        if (!info) return image;
 
-        try{
+        try {
             info = JSON.parse(info);
             let item = info.items[0];
             let image = {
-                'url' : item.snippet.urls.default.url,
+                'url': item.snippet.thumbnails.default.url,
                 'title': item.snippet.title,
-                'link' : 'https://www.youtube.com/channel/' + item.id
+                'link': 'https://www.youtube.com/channel/' + item.id
             }
             logger.info('youtube getImage succeed');
             return image;
-        }catch(err){
+           } catch (err) {
             logger.error('youtube getImage failed: ', err);
-            logger.error('info', info);
+            logger.error('info', JSON.stringify(info));
             return null;
         }
 
     }
 
-    getChannelInfo(parts, id){
+    getChannelInfo(parts, id) {
         let part = parts.join(',');
         part = part ? part : 'snippet';
         let key = YOUTUBE_KEY;
@@ -160,7 +160,7 @@ class Youtube{
                 if (error) {
                     logger.error('getChannelInfo failed: ', error);
                     reject(error);
-                }else{
+                } else {
                     logger.info('getChannelInfo scuueed');
                     resolve(body);
                 }
