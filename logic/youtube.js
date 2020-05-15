@@ -112,11 +112,22 @@ class Youtube{
     }
 
     async getImage(id){
+        if(global.test){
+            return new Promise((resolve, reject) => {
+                resolve({
+                    'url': 'url',
+                    'title': 'title',
+                    'link': 'link'
+                });
+            })
+        }
+
         let image = {
-            'thumbnail' : '',
+            'url' : '',
             'title': '',
             'link' : ''
         }
+
         let info = await this.getChannelInfo(['snippet'], id);
         if(!info) return image;
 
@@ -124,7 +135,7 @@ class Youtube{
             info = JSON.parse(info);
             let item = info.items[0];
             let image = {
-                'thumbnail' : item.snippet.thumbnails.default.url,
+                'url' : item.snippet.urls.default.url,
                 'title': item.snippet.title,
                 'link' : 'https://www.youtube.com/channel/' + item.id
             }
@@ -139,11 +150,6 @@ class Youtube{
     }
 
     getChannelInfo(parts, id){
-        if(global.test){
-            return new Promise((resolve, reject) => {
-                resolve(null);
-            })
-        }
         let part = parts.join(',');
         part = part ? part : 'snippet';
         let key = YOUTUBE_KEY;

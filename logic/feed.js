@@ -70,13 +70,13 @@ class Item{
 
 class Image{
     constructor(){
-        this.thumbnail = '';
+        this.url = '';
         this.title = '';
         this.link = '';
     }
 
-    setInfo({thumbnail, title, link}){
-        this.thumbnail = thumbnail ? thumbnail : '';
+    setInfo({url, title, link}){
+        this.url = url ? url : '';
         this.title = title ? title: '';
         this.link = link ? link : '';
     }
@@ -216,7 +216,7 @@ class Feed{
                 },
                 {
                     'image': {
-                        'url': this.info.image.thumbnail,
+                        'url': this.info.image.url,
                         'title': this.info.image.title,
                         'link': this.info.image.link
                     }
