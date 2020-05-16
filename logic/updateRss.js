@@ -32,8 +32,9 @@ async function getUpdate(){
             feed.generateEmpty(info);
             logger.info('update channel[%s], generate empty feed', cName);
         }
-        
-        let toAddItems = extract(youtube.videos, feed.items);
+        // test 暂时最多下载5个
+        let updateItems = youtube.videos.slice(0, 5);
+        let toAddItems = extract(updateItems, feed.items);
 
         if(toAddItems.length == 0){
             logger.info('update channel[%s], no updates', cName);
@@ -42,8 +43,6 @@ async function getUpdate(){
             logger.info('update channel[%s], [%d] updates', cName, toAddItems.length);
         }
         
-        // test 暂时最多下载5个
-        toAddItems = toAddItems.slice(0, 5);
         let downloader = new YoutubeDownloader();
         let promises = downloader.downloadItems(toAddItems);
         let items = await Promise.all(promises);
