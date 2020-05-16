@@ -52,7 +52,7 @@ class YoutubeDownloader extends Downloader{
             return new Promise((resolve, reject) => {
                 let size = new File().getSize(fileName);
                 item.audio.url = name + extension;
-                item.audio.size = size ? size : 655555;
+                item.audio.length = size ? size : 655555;
                 resolve(item);
             })
         }else{
@@ -62,7 +62,7 @@ class YoutubeDownloader extends Downloader{
                     new File().save(fileName, 'test').then(() => {
                         let size = new File().getSize(fileName);
                         item.audio.url = name + extension;
-                        item.audio.size = size ? size : 655555;
+                        item.audio.length = size ? size : 655555;
                         resolve(item);
                     }).catch((err) => {
                         reject(err);
@@ -84,7 +84,7 @@ class YoutubeDownloader extends Downloader{
                         console.log('download [%s] finish', url);
                         let size = new File().getSize(fileName);
                         item.audio.url = name + extension;
-                        item.audio.size = size ? size : 655555;
+                        item.audio.length = size ? size : 655555;
                         resolve(item);
                     })
                 }
