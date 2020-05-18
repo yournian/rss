@@ -62,18 +62,29 @@ class RssXml extends Xml{
         logger.debug('====rssxml handle====');
         try{
             let channel = result.rss.channel[0];
+    
+            
             let info = {
                 'title': channel.title[0].trim(),
                 'link': channel.link[0].trim(),
                 'description': channel.description[0].trim(),
-                // 'href': ''
-                // pubDate[0].trim()
+                'href': channel['atom:link'][0]['$'].href.trim(),
+                'pubDate': channel.pubDate ? channel.pubDate[0].trim() : '',
+                'image': {}
+            }
+
+            if(channel.image && channel.image[0]) {
+                let image = channel.image[0];
+                info.image = {
+                    'link': image.link ? image.link[0] : '',
+                    'title': image.title ? image.title[0] : '',
+                    'url': image.url ? image.url[0] : '',
+                }
             }
 
             let items = [];
             channel.item.forEach(item => {
                 items.push({
-                    // todo
                     'title': item.title[0].trim(),
                     'guid': item.guid ? item.guid[0] : '',
                     'description': '', //item.description[0].trim(),

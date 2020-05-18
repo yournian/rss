@@ -2,63 +2,58 @@ const logger = require('../util/logger').getLogger();
 const {Feed} = require('./feed');
 const Youtube = require('./youtube');
 const {YoutubeDownloader} = require('../util/downloader');
-const {DomainName} = require('../consts');
-const {Path} = require('../consts');
-
-
-let channels = [
-    {
-        'name': 'stone',
-        'id': 'UCghLs6s95LrBWOdlZUCH4qw'
-    }
-];
+const {CHANNEL, DomainName, Path} = require('../consts');
 
 
 async function getUpdate(){
-    for(let channel of channels){
-        logger.info('update channel[%s]', channel.name);
+    for(let cName in CHANNEL){
+        let cID = CHANNEL[cName].id;
+        logger.info('update channel[%s]', cName);
         let youtube = new Youtube();
-        await youtube.getUpdate(channel.id);
+        await youtube.getUpdate(cID);
         if(youtube.videos.length == 0){
-            logger.info('update channel[%s], no videos', channel.name);
+            logger.info('update channel[%s], no videos', cName);
             return;
         }
-
 
         let feed = new Feed();
-        let result = await feed.readFromFile(channel.name);
+        let result = await feed.readFromFile(cName);
         if(!result){
+            let image = await youtube.getImage(cID);
             let info ={
-                'title': channel.name,
-                'link': 'https://www.youtube.com/channel/' + channel.id,
+                'title': cName,
+                'link': 'https://www.youtube.com/channel/' + cID,
                 'language': 'zh-cn',
-                'description': channel.name + ' 的 Youtube 视频',
-                'href': DomainName + 'youtube/feed/' + channel.name + '.xml'
+                'description': cName + ' 的 Youtube 视频',
+                'href': DomainName + 'youtube/feed/' + cName + '.xml',
+                'pubDate': new Date(),
+                'image': image
             }
             feed.generateEmpty(info);
-            logger.info('update channel[%s], generate empty feed', channel.name);
+            logger.info('update channel[%s], generate empty feed', cName);
         }
-        
-        let toAddItems = extract(youtube.videos, feed.items);
+        // test 暂时最多下载5个
+        let updateItems = youtube.videos.slice(0, 5);
+        let toAddItems = extract(updateItems, feed.items);
 
         if(toAddItems.length == 0){
-            logger.info('update channel[%s], no updates', channel.name);
+            logger.info('update channel[%s], no updates', cName);
             return;
+        }else{
+            logger.info('update channel[%s], [%d] updates', cName, toAddItems.length);
         }
         
-        // test 暂时最多下载3个
-        toAddItems = toAddItems.slice(0, 3);
         let downloader = new YoutubeDownloader();
         let promises = downloader.downloadItems(toAddItems);
         let items = await Promise.all(promises);
         items = items;
         feed.addItems(items);
-        let path = Path.feed + channel.name + '.xml';
+        let path = Path.feed + cName + '.xml';
         let succeed = await feed.updateFile(path);
         if(succeed){
-            logger.info('update channel[%s] succeed', channel.name);
+            logger.info('update channel[%s] succeed', cName);
         }else{
-            logger.error('update channel[%s] failed', channel.name);
+            logger.error('update channel[%s] failed', cName);
         }
     }
 }
@@ -67,10 +62,11 @@ async function getUpdate(){
 function extract(newer, older){
     let exist = [];
     older.forEach(element => {
-        exist.push(element.name);
+        exist.push(element.title);
     });
 
-    let newItems = newer.filter(item => !exist.includes(item.name) );
+    let newItems = newer.filter(item => !exist.includes(item.title) );
+
     return newItems;
 }
 

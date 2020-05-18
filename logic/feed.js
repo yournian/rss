@@ -16,6 +16,10 @@ class Item{
         this.description = description;
     }
 
+    isLaterThen(item){
+        return new Date(this.pubDate) > new Date(item.pubDate);
+    }
+
     setAudio(audio){
         return {
             url: DomainName + 'youtube/media/' + audio.url,
@@ -54,10 +58,32 @@ class Item{
             {
                 'description': this.description
             }
+            // ,
+            // {
+            //     'image': this.image.format()
+            // }
         ]
         return formation;
     }
 
+}
+
+class Image{
+    constructor(){
+        this.url = '';
+        this.title = '';
+        this.link = '';
+    }
+
+    setInfo({url, title, link}){
+        this.url = url ? url : '';
+        this.title = title ? title: '';
+        this.link = link ? link : '';
+    }
+
+    format(){
+
+    }
 }
 
 class Feed{
@@ -67,7 +93,9 @@ class Feed{
             'link': '',
             'language': '',
             'description': '',
-            'href': ''
+            'href': '',
+            'pubDate': null,
+            'image': new Image()
             // 'items': []
         }
         this.items = [];
@@ -79,12 +107,17 @@ class Feed{
     }
 
     setInfo(info){
+        let {title, link, href, description, language, pubDate, image} = info
         logger.debug('====feed setInfo====');
-        this.info.title = info.title ? info.title : '';
-        this.info.link = info.link ? info.link : '';
-        this.info.href = info.href ? info.href : '';
-        this.info.description = info.description ? info.description : '';
-        this.info.language = info.language ? info.language : 'zh-cn';
+        this.info.title = title ? title : '';
+        this.info.link = link ? link : '';
+        this.info.href = href ? href : '';
+        this.info.description = description ? description : '';
+        this.info.language = language ? language : 'zh-cn';
+        this.info.pubDate = pubDate ? pubDate : new Date();
+        if(image){
+            this.info.image.setInfo(image);
+        }
     }
 
     async readFromFile(name){
@@ -149,6 +182,7 @@ class Feed{
 
     updateFile(fileName){
         logger.debug('====feed updateFile====');
+        this.info.pubDate = new Date();
         return this.writeFile(fileName);
     }
     
@@ -176,17 +210,33 @@ class Feed{
                 },
                 {
                     'description': this.info.description
+                },
+                {
+                    'pubDate': this.info.pubDate
+                },
+                {
+                    'image': {
+                        'url': this.info.image.url,
+                        'title': this.info.image.title,
+                        'link': this.info.image.link
+                    }
                 }
             ]
         };
 
+        this.sortItems();
         for(let item of this.items){
             content.channel.push({'item': item.format()});
         }
         return content;
     }
+
+    sortItems(){
+       this.items.sort((a, b) => b.isLaterThen(a));
+    }
 }
 
 module.exports = {
-    Feed
+    Feed,
+    Item
 };
