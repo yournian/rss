@@ -1,7 +1,7 @@
 const {RssXml} = require('./xml');
 const File = require('../util/myFile');
 let file = new File();
-const {DomainName, Path} = require('../consts');
+const {getAudioPath, getFeedPath} = require('./path');
 const logger = require('../util/logger').getLogger();
 
 
@@ -22,7 +22,7 @@ class Item{
 
     setAudio(audio){
         return {
-            url: DomainName + 'youtube/media/' + audio.url,
+            url: getAudioPath(audio.url),
             length: audio.length ? audio.length : 65555,
             type: audio.type ? audio.type : 'audio/x-m4a'
         }
@@ -122,14 +122,15 @@ class Feed{
 
     async readFromFile(name){
         logger.debug('====feed readFromFile====');
-        let fileName = Path.feed + name + '.xml'
-        let exist = await file.isExist(fileName);
+        let path = getFeedPath(name);
+        
+        let exist = await file.isExist(path);
         if(!exist){
             logger.debug('file[%s] no exists', name);
             return false;
         }else{
             logger.debug('file[%s] exists', name);
-            let content = await file.read(fileName);
+            let content = await file.read(path);
             await this.rebuild(content);
             return true;
         }
@@ -232,6 +233,7 @@ class Feed{
     }
 
     sortItems(){
+        logger.debug('====feed sortItems====');
        this.items.sort((a, b) => b.isLaterThen(a));
     }
 }

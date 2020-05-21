@@ -49,7 +49,6 @@ class Item {
 class Youtube {
     constructor() {
         this.info = {};
-        this.videos = [];
     }
 
     getUpdate(channel) {
@@ -66,8 +65,9 @@ class Youtube {
             url = 'http://43.255.30.23/youtube/feed/test.xml';
         }
         let htmlBody = await this.readFromUrl(url);
+        if(!htmlBody){return null};
         let items = await this.parse(htmlBody.content);
-        this.addVideos(items);
+        return this.handleItems(items);
     }
 
     readFromUrl(url) {
@@ -88,7 +88,7 @@ class Youtube {
             let xml = new RssXml();
             let { info, items } = await xml.parse(htmlBody);
             if (items && items.length == 0) {
-                logger.warn('youtube addVideos: no video');
+                logger.warn('youtube handleItems: no video');
                 logger.warn('htmlBody: ', htmlBody);
             }
             return items;
@@ -98,17 +98,19 @@ class Youtube {
         }
     }
 
-    addVideos(items) {
-        logger.debug('====youtube addVideos====');
+    handleItems(items) {
+        logger.debug('====youtube handleItems====');
+        let results = [];
         for (let item of items) {
-            this.addVideo(item);
+            results.push(this.handleItem(item));
         }
+        return results;
     }
 
-    addVideo(item) {
-        logger.debug('====youtube addVideo====');
+    handleItem(item) {
+        logger.debug('====youtube handleItem====');
         let { title, guid, audio, pubDate, link, description } = item;
-        this.videos.push(new Item(title, guid, audio, pubDate, link, description));
+        return new Item(title, guid, audio, pubDate, link, description);
     }
 
     async getImage(id) {
@@ -167,6 +169,67 @@ class Youtube {
             })
         })
     }
+
+    // downloadItems(items){
+    //     let promises = [];
+    //     for(let item of items){
+    //         promises.push(this.downloadItem(item));
+    //     }
+    //     return promises;
+    // }
+
+    // downloadItem(item){
+    //     return this.download(item);
+    // }
+
+    // download(item){
+    //     let name  = super.checkName(item.title);
+    //     let extension = this.checkExtension('.m4a');
+    //     let fileName = Path.media + name + extension;
+    //     if(new File().isExistSync(fileName)){
+    //         console.log('youtube download escape : already existed file[%s]', name);
+    //         return new Promise((resolve, reject) => {
+    //             let size = new File().getSize(fileName);
+    //             item.audio.url = name + extension;
+    //             item.audio.length = size ? size : 655555;
+    //             resolve(item);
+    //         })
+    //     }else{
+    //         return new Promise((resolve, reject) => {
+    //             if(global.test){
+    //                 // 测试，跳过下载直接写入一个文件
+    //                 new File().save(fileName, 'content').then(() => {
+    //                     let size = new File().getSize(fileName);
+    //                     item.audio.url = name + extension;
+    //                     item.audio.length = size ? size : 655555;
+    //                     resolve(item);
+    //                 }).catch((err) => {
+    //                     reject(err);
+    //                 })
+    //             }else{
+    //                 // todo 优化logger
+    //                 let url = item.link;
+    //                 const stream = ytdl(url, {filter: 'audioonly'}).pipe(fs.createWriteStream(fileName));
+    //                 stream.on('close', () => {
+    //                     console.log('download [%s] close', url);
+    //                 })
+        
+    //                 stream.on('error', (data) => {
+    //                     reject(data);
+    //                     console.error('download failed url: [%s], reason: [%s]', url, data);
+    //                 })
+        
+    //                 stream.on('finish', () => {
+    //                     console.log('download [%s] finish', url);
+    //                     let size = new File().getSize(fileName);
+    //                     item.audio.url = name + extension;
+    //                     item.audio.length = size ? size : 655555;
+    //                     resolve(item);
+    //                 })
+    //             }
+    //         })
+    //     }
+    // }
 }
 
 module.exports = Youtube;

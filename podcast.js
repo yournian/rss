@@ -1,10 +1,12 @@
 const schedule = require('./util/schedule');
-const updateRss = require('./logic/updateRss');
+const Updater = require('./logic/updater');
+const {CHANNEL} = require('./consts');
 
 global.test = false;
 
 function update(){
-    updateRss();
+    let updater = new Updater();
+    updater.updateFeeds(CHANNEL);
 }
 
 update();
