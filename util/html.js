@@ -29,7 +29,7 @@ class HtmlDownloader{
                         logger.info('download scuueed');
                         resolve(new Html(url, body));
                     }else{
-                        logger.warn('download unsuccessful, response: ', response);
+                        logger.warn('download unsuccessful, statusCode[%s], statusMessage[%s] ', response.statusCode, response.statusMessage);
                         resolve(null);
                     }
                 }
