@@ -88,7 +88,7 @@ class Updater{
     reUpdateFeed(name, id, second){
         logger.info('retry update feed[%s]', name);
         setTimeout(() => {
-            updateFeed(name, id)
+            this.updateFeed(name, id)
         }, second * 1000);
     }
 }
