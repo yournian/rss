@@ -1,9 +1,9 @@
 const {RssXml} = require('./xml');
 const File = require('../util/myFile');
-let file = new File();
-const {getAudioPath, getFeedPath} = require('./path');
+const file = new File();
 const logger = require('../util/logger').getLogger();
-
+const path = require('path');
+const {PATH, DomainName, PORT} = require('../consts');
 
 class Item{
     constructor(title, guid, audio, pubDate, link, description){
@@ -21,11 +21,19 @@ class Item{
     }
 
     setAudio(audio){
-        return {
-            url: getAudioPath(audio.url),
-            length: audio.length ? audio.length : 65555,
-            type: audio.type ? audio.type : 'audio/x-m4a'
+        let url = '';
+        let length = 0;
+        let type = '';
+        if(audio){
+            url = audio.url ? this.getMediaPath(audio.url) : '',
+            length = audio.length ? audio.length : 65555,
+            type = audio.type ? audio.type : 'audio/x-m4a'
         }
+        return {
+            url,
+            length,
+            type
+        } 
     }
 
     format(){
@@ -64,6 +72,11 @@ class Item{
             // }
         ]
         return formation;
+    }
+
+    getMediaPath(name){
+        let _path = path.join(PATH.media, name);
+        return DomainName + ':' + PORT + '/' + _path;
     }
 
 }
@@ -122,15 +135,15 @@ class Feed{
 
     async readFromFile(name){
         logger.debug('====feed readFromFile====');
-        let path = getFeedPath(name);
+        let _path = this.getLocalPath(name);
         
-        let exist = await file.isExist(path);
+        let exist = await file.isExist(_path);
         if(!exist){
             logger.debug('file[%s] no exists', name);
             return false;
         }else{
             logger.debug('file[%s] exists', name);
-            let content = await file.read(path);
+            let content = await file.read(_path);
             await this.rebuild(content);
             return true;
         }
@@ -234,7 +247,16 @@ class Feed{
 
     sortItems(){
         logger.debug('====feed sortItems====');
-       this.items.sort((a, b) => b.isLaterThen(a));
+        this.items.sort((a, b) => b.isLaterThen(a));
+    }
+
+    getLocalPath(name){
+        return path.join(PATH.feed, name + '.xml');
+    }
+
+    getHref(name){
+        let _path = path.join(PATH.feed, name + '.xml')
+        return DomainName + ':' + PORT + '/' + _path;
     }
 }
 

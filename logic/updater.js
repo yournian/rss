@@ -2,13 +2,11 @@
 const logger = require('../util/logger').getLogger();
 const { Feed } = require('./feed');
 const Youtube = require('./youtube');
-const {getFeedPath, getFeedHref} = require('./path');
 const {YoutubeDownloader} = require('../util/downloader');
 
 
 class Updater{
     constructor(){
-
     }
 
     async updateFeeds(feeds){
@@ -43,7 +41,7 @@ class Updater{
                 'link': 'https://www.youtube.com/channel/' + id,
                 'language': 'zh-cn',
                 'description': name + ' 的 Youtube 视频',
-                'href': getFeedHref(name),
+                'href': feed.getHref(name),
                 'pubDate': new Date(),
                 'image': image
             }
@@ -65,7 +63,7 @@ class Updater{
         let promises = downloader.downloadItems(toAddItems);
         let items = await Promise.all(promises);
         feed.addItems(items);
-        let path = getFeedPath(name);
+        let path = feed.getLocalPath(name);
         let succeed = await feed.updateFile(path);
         if (succeed) {
             logger.info('update feed[%s] succeed', name);

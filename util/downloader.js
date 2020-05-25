@@ -2,7 +2,7 @@ const fs = require('fs');
 const ytdl = require('ytdl-core');
 const Str = require('./str');
 const File = require('./myFile');
-const {Path} = require('../consts');
+const {PATH} = require('../consts');
 
 
 class Downloader{
@@ -46,7 +46,7 @@ class YoutubeDownloader extends Downloader{
         super.download(item.link, item.title);
         let name  = super.checkName(item.title);
         let extension = this.checkExtension('.m4a');
-        let fileName = Path.media + name + extension;
+        let fileName = PATH.media + name + extension;
         if(new File().isExistSync(fileName)){
             console.log('download escape : already existed file[%s]', name);
             return new Promise((resolve, reject) => {

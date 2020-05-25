@@ -185,7 +185,7 @@ class Youtube {
     // download(item){
     //     let name  = super.checkName(item.title);
     //     let extension = this.checkExtension('.m4a');
-    //     let fileName = Path.media + name + extension;
+    //     let fileName = PATH.media + name + extension;
     //     if(new File().isExistSync(fileName)){
     //         console.log('youtube download escape : already existed file[%s]', name);
     //         return new Promise((resolve, reject) => {

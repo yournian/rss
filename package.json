@@ -26,6 +26,8 @@
   "homepage": "https://github.com/yournian/youtube_podcast#readme",
   "dependencies": {
     "jstoxml": "^1.6.5",
+    "koa": "^2.12.0",
+    "koa-static": "^5.0.0",
     "log4js": "^6.2.1",
     "node-schedule": "^1.3.2",
     "request": "^2.88.2",

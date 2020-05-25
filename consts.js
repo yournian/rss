@@ -7,13 +7,15 @@ const CHANNEL = {
     },
 }
 
-const DomainName = 'http://yournian.top/'; 
-const Path = {
-    'media': './media/',
-    'feed': './feed/'
+const DomainName = 'http://yournian.top'; 
+const PORT = '3030';
+const PATH = {
+    'media': './static/media/',
+    'feed': './static/feed/'
 }
 module.exports = {
     CHANNEL,
     DomainName,
-    Path
+    PORT,
+    PATH
 }
