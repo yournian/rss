@@ -62,7 +62,7 @@ class Youtube {
         let url = prefix + channel;
         if (global.test) {
             // test 
-            url = 'http://43.255.30.23/youtube/feed/test.xml';
+            url = `http://localhost:3030/feed/test.xml`;
         }
         let htmlBody = await this.readFromUrl(url);
         if(!htmlBody){return null};

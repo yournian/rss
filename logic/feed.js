@@ -251,7 +251,7 @@ class Feed{
     }
 
     getLocalPath(name){
-        return path.join(PATH.feed, name + '.xml');
+        return path.join('static', PATH.feed, name + '.xml');
     }
 
     getHref(name){

@@ -63,7 +63,7 @@ describe('feed', () => {
     it.only('getHref', () => {
         let feed = new Feed();
         let path = feed.getHref('name');
-        let url = DomainName + ':' + PORT + 'static/feed/name.xml';
+        let url = DomainName + ':' + PORT + '/feed/name.xml';
         expect(path).to.be.equal(url);
     })
 
@@ -81,7 +81,7 @@ describe('item', () => {
     it.only('getMediaPath', () => {
         let item = new Item();
         let path = item.getMediaPath('name.mp3');
-        let url = DomainName + ':' + PORT + 'static/media/name.mp3';
+        let url = DomainName + ':' + PORT + '/media/name.mp3';
         expect(path).to.be.equal(url);
     })
     

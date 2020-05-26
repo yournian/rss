@@ -10,8 +10,8 @@ const CHANNEL = {
 const DomainName = 'http://yournian.top'; 
 const PORT = '3030';
 const PATH = {
-    'media': './static/media/',
-    'feed': './static/feed/'
+    'media': 'media/',
+    'feed': 'feed/'
 }
 module.exports = {
     CHANNEL,
