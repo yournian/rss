@@ -4,9 +4,11 @@ const { Feed } = require('./feed');
 const Youtube = require('./youtube');
 const {YoutubeDownloader} = require('../util/downloader');
 
+const MAX_RETYR_TIMES = 5;
 
 class Updater{
     constructor(){
+        this.retryTimes = 0;
     }
 
     async updateFeeds(feeds){
@@ -23,7 +25,7 @@ class Updater{
         let videos = await youtube.getUpdate(id);
         if (!videos) {
             logger.warn('update feed[%s] failed, retry later', name);
-            this.reUpdateFeed(name, id, 60);
+            this.reUpdateFeed(name, id);
             return;
         }
 
@@ -83,11 +85,14 @@ class Updater{
         return newItems;
     }
     
-    reUpdateFeed(name, id, second){
-        logger.info('retry update feed[%s]', name);
+    reUpdateFeed(name, id){
+        if(this.retryTimes >= MAX_RETYR_TIMES) return;
+        this.retryTimes += 1;
+        logger.info('retry update feed[%s] [%d] times', name, this.retryTimes);
+        let timeout = this.retryTimes * 1000;
         setTimeout(() => {
-            this.updateFeed(name, id)
-        }, second * 1000);
+            this.updateFeed(name, id);
+        }, timeout);
     }
 }
 
