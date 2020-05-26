@@ -89,7 +89,7 @@ class Updater{
         if(this.retryTimes >= MAX_RETYR_TIMES) return;
         this.retryTimes += 1;
         logger.info('retry update feed[%s] [%d] times', name, this.retryTimes);
-        let timeout = this.retryTimes * 1000;
+        let timeout = this.retryTimes * 10 * 1000;
         setTimeout(() => {
             this.updateFeed(name, id);
         }, timeout);
