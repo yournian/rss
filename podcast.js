@@ -18,4 +18,17 @@ function update(){
     updater.updateFeeds(CHANNEL);
 }
 
+process.on('uncaughtException', function (err) {
+    console.log(err.stack);
+    logger.error('Caught exception ', err);
+});
+
+process.on('unhandledRejection', function (err) {
+    logger.error('Caught unhandledRejection ', err);
+});
+
+
+
 run();
+
+
