@@ -63,7 +63,10 @@ class Updater{
         
         let downloader = new YoutubeDownloader(); // todo
         let promises = downloader.downloadItems(toAddItems);
-        let items = await Promise.all(promises);
+        let items = [];
+        if(promises.length !== 0){
+            items =  await Promise.all(promises);
+        }
         feed.addItems(items);
         let path = feed.getLocalPath(name);
         let succeed = await feed.updateFile(path);
@@ -89,7 +92,7 @@ class Updater{
         if(this.retryTimes >= MAX_RETYR_TIMES) return;
         this.retryTimes += 1;
         logger.info('retry update feed[%s] [%d] times', name, this.retryTimes);
-        let timeout = this.retryTimes * 10 * 1000;
+        let timeout = this.retryTimes * 10 * 60 * 1000; //n分钟后重试
         setTimeout(() => {
             this.updateFeed(name, id);
         }, timeout);
