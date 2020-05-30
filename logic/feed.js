@@ -80,10 +80,11 @@ class Item{
     }
 
     setMediaPath(name){
-        let _path = path.join('static', PATH.media, name + '.m4a');
+        let filename = name + '.m4a';
+        let _path = path.join('static', PATH.media, filename);
         if(file.isExistSync(_path)){
             logger.info('文件已存在[%s]', name);
-            this.audio.url = this.getMediaPath(name);
+            this.audio.url = this.getMediaPath(filename);
         }
     }
 }
