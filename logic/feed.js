@@ -82,6 +82,7 @@ class Item{
     setMediaPath(name){
         let _path = path.join('static', PATH.media, name + '.m4a');
         if(file.isExistSync(_path)){
+            logger.info('文件已存在[%s]', name);
             this.audio.url = this.getMediaPath(name);
         }
     }
@@ -183,10 +184,6 @@ class Feed{
         if(audio && !audio.url){
             logger.warn('item[%s] url not exist', title);
             _item.setMediaPath(title);
-            let url = _item.getMediaPath(title);
-            if(url){
-
-            }
         }
         this.items.push(_item);
     }
