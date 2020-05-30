@@ -1,3 +1,4 @@
+const logger = require('./util/logger').getLogger();
 const http = require('./http');
 const schedule = require('./util/schedule');
 const Updater = require('./logic/updater');
@@ -19,7 +20,7 @@ function update(){
 }
 
 process.on('uncaughtException', function (err) {
-    console.log(err.stack);
+    logger.error(err.stack);
     logger.error('Caught exception ', err);
 });
 
