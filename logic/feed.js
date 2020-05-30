@@ -85,6 +85,7 @@ class Item{
         if(file.isExistSync(_path)){
             logger.info('文件已存在[%s]', name);
             this.audio.url = this.getMediaPath(filename);
+            this.audio.length = file.getSize(_path);;
         }
     }
 }
@@ -182,11 +183,21 @@ class Feed{
         logger.debug('====feed addItem====');
         let {title, guid, audio, pubDate, link, description} = item;
         let _item = new Item(title, guid, audio, pubDate, link, description)
-        if(audio && !audio.url){
-            logger.warn('item[%s] url not exist', title);
+        if(this.isInvalidAudio(audio)){
+            logger.warn('item[%s] invalid audio[%s]', title, JSON.stringify(audio));
             _item.setMediaPath(title);
         }
         this.items.push(_item);
+    }
+
+    isInvalidAudio(audio){
+        if(
+            !audio || 
+            !audio.url ||
+            !audio.url.includes('.m4a')
+        ){
+            return true;
+        }
     }
 
     writeFile(fileName) {
