@@ -79,6 +79,12 @@ class Item{
         return DomainName + ':' + PORT + '/' + _path;
     }
 
+    setMediaPath(name){
+        let _path = path.join('static', PATH.media, name + '.m4a');
+        if(file.isExistSync(_path)){
+            this.audio.url = this.getMediaPath(name);
+        }
+    }
 }
 
 class Image{
@@ -173,7 +179,16 @@ class Feed{
     addItem(item){
         logger.debug('====feed addItem====');
         let {title, guid, audio, pubDate, link, description} = item;
-        this.items.push(new Item(title, guid, audio, pubDate, link, description));
+        let _item = new Item(title, guid, audio, pubDate, link, description)
+        if(audio && !audio.url){
+            logger.warn('item[%s] url not exist', title);
+            _item.setMediaPath(title);
+            let url = _item.getMediaPath(title);
+            if(url){
+
+            }
+        }
+        this.items.push(_item);
     }
 
     writeFile(fileName) {
