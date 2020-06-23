@@ -83,7 +83,7 @@ class Item{
         let filename = name + '.m4a';
         let _path = path.join('static', PATH.media, filename);
         if(file.isExistSync(_path)){
-            logger.info('文件已存在[%s]', name);
+            logger.debug('文件已存在[%s]', name);
             this.audio.url = this.getMediaPath(filename);
             this.audio.length = file.getSize(_path);;
         }
@@ -121,6 +121,7 @@ class Feed{
             // 'items': []
         }
         this.items = [];
+        this.maxItemNum = 20;
     }
 
     generateEmpty(info){
@@ -174,8 +175,15 @@ class Feed{
     addItems(items){
         logger.debug('====feed addItems====');
         if(items.length == 0) return;
+        let len = this.items.length;
         for(let item of items){
-            this.addItem(item);
+            if(len < this.maxItemNum){
+                this.addItem(item);
+                len++;
+            }else{
+                logger.debug('====feed addItems reach max====');
+                break;
+            }
         }
     }
 

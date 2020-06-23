@@ -1,9 +1,6 @@
 const CHANNEL = {
     'stone': {
-        'id': 'UCghLs6s95LrBWOdlZUCH4qw',
-        // 'title': 'title',
-        // 'link': 'link',
-        // 'description': 'description',
+        'id': 'UCghLs6s95LrBWOdlZUCH4qw'
     },
 }
 
