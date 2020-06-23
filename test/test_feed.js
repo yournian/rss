@@ -1,5 +1,7 @@
 const expect = require('chai').expect;
 const {Feed, Item} = require('../logic/feed');
+const {DomainName, PORT} = require('../consts');
+
 
 describe('feed', () => {
     let feed = new Feed();
@@ -52,6 +54,19 @@ describe('feed', () => {
         expect(feed.items[0].pubDate).to.be.equal(item2.pubDate);
     })
 
+    it.only('getLocalPath', () => {
+        let feed = new Feed();
+        let path = feed.getLocalPath('name');
+        expect(path).to.be.equal('static/feed/name.xml');
+    })
+
+    it.only('getHref', () => {
+        let feed = new Feed();
+        let path = feed.getHref('name');
+        let url = DomainName + ':' + PORT + '/feed/name.xml';
+        expect(path).to.be.equal(url);
+    })
+
 })
 
 
@@ -62,5 +77,13 @@ describe('item', () => {
     it('isLaterThen', () => {
         expect(item1.isLaterThen(item2)).to.be.equal(true);
     })
+
+    it.only('getMediaPath', () => {
+        let item = new Item();
+        let path = item.getMediaPath('name.mp3');
+        let url = DomainName + ':' + PORT + '/media/name.mp3';
+        expect(path).to.be.equal(url);
+    })
+    
 
 })

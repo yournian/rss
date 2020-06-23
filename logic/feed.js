@@ -1,9 +1,9 @@
 const {RssXml} = require('./xml');
 const File = require('../util/myFile');
-let file = new File();
-const {DomainName, Path} = require('../consts');
+const file = new File();
 const logger = require('../util/logger').getLogger();
-
+const path = require('path');
+const {PATH, DomainName, PORT} = require('../consts');
 
 class Item{
     constructor(title, guid, audio, pubDate, link, description){
@@ -21,11 +21,19 @@ class Item{
     }
 
     setAudio(audio){
-        return {
-            url: DomainName + 'youtube/media/' + audio.url,
-            length: audio.length ? audio.length : 65555,
-            type: audio.type ? audio.type : 'audio/x-m4a'
+        let url = '';
+        let length = 0;
+        let type = '';
+        if(audio){
+            url = audio.url ? this.getMediaPath(audio.url) : '',
+            length = audio.length ? audio.length : 65555,
+            type = audio.type ? audio.type : 'audio/x-m4a'
         }
+        return {
+            url,
+            length,
+            type
+        } 
     }
 
     format(){
@@ -66,6 +74,20 @@ class Item{
         return formation;
     }
 
+    getMediaPath(name){
+        let _path = path.join(PATH.media, name);
+        return DomainName + ':' + PORT + '/' + _path;
+    }
+
+    setMediaPath(name){
+        let filename = name + '.m4a';
+        let _path = path.join('static', PATH.media, filename);
+        if(file.isExistSync(_path)){
+            logger.debug('文件已存在[%s]', name);
+            this.audio.url = this.getMediaPath(filename);
+            this.audio.length = file.getSize(_path);;
+        }
+    }
 }
 
 class Image{
@@ -99,6 +121,7 @@ class Feed{
             // 'items': []
         }
         this.items = [];
+        this.maxItemNum = 20;
     }
 
     generateEmpty(info){
@@ -122,14 +145,15 @@ class Feed{
 
     async readFromFile(name){
         logger.debug('====feed readFromFile====');
-        let fileName = Path.feed + name + '.xml'
-        let exist = await file.isExist(fileName);
+        let _path = this.getLocalPath(name);
+        
+        let exist = await file.isExist(_path);
         if(!exist){
             logger.debug('file[%s] no exists', name);
             return false;
         }else{
             logger.debug('file[%s] exists', name);
-            let content = await file.read(fileName);
+            let content = await file.read(_path);
             await this.rebuild(content);
             return true;
         }
@@ -151,15 +175,37 @@ class Feed{
     addItems(items){
         logger.debug('====feed addItems====');
         if(items.length == 0) return;
+        let len = this.items.length;
         for(let item of items){
-            this.addItem(item);
+            if(len < this.maxItemNum){
+                this.addItem(item);
+                len++;
+            }else{
+                logger.debug('====feed addItems reach max====');
+                break;
+            }
         }
     }
 
     addItem(item){
         logger.debug('====feed addItem====');
         let {title, guid, audio, pubDate, link, description} = item;
-        this.items.push(new Item(title, guid, audio, pubDate, link, description));
+        let _item = new Item(title, guid, audio, pubDate, link, description)
+        if(this.isInvalidAudio(audio)){
+            logger.warn('item[%s] invalid audio[%s]', title, JSON.stringify(audio));
+            _item.setMediaPath(title);
+        }
+        this.items.push(_item);
+    }
+
+    isInvalidAudio(audio){
+        if(
+            !audio || 
+            !audio.url ||
+            !audio.url.includes('.m4a')
+        ){
+            return true;
+        }
     }
 
     writeFile(fileName) {
@@ -232,7 +278,17 @@ class Feed{
     }
 
     sortItems(){
-       this.items.sort((a, b) => b.isLaterThen(a));
+        logger.debug('====feed sortItems====');
+        this.items.sort((a, b) => b.isLaterThen(a));
+    }
+
+    getLocalPath(name){
+        return path.join('static', PATH.feed, name + '.xml');
+    }
+
+    getHref(name){
+        let _path = path.join(PATH.feed, name + '.xml')
+        return DomainName + ':' + PORT + '/' + _path;
     }
 }
 

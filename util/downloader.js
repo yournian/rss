@@ -2,7 +2,8 @@ const fs = require('fs');
 const ytdl = require('ytdl-core');
 const Str = require('./str');
 const File = require('./myFile');
-const {Path} = require('../consts');
+const path = require('path');
+const {PATH} = require('../consts');
 
 
 class Downloader{
@@ -46,11 +47,11 @@ class YoutubeDownloader extends Downloader{
         super.download(item.link, item.title);
         let name  = super.checkName(item.title);
         let extension = this.checkExtension('.m4a');
-        let fileName = Path.media + name + extension;
-        if(new File().isExistSync(fileName)){
+        let _path = path.join('static', PATH.media, name + extension);
+        if(new File().isExistSync(_path)){
             console.log('download escape : already existed file[%s]', name);
             return new Promise((resolve, reject) => {
-                let size = new File().getSize(fileName);
+                let size = new File().getSize(_path);
                 item.audio.url = name + extension;
                 item.audio.length = size ? size : 655555;
                 resolve(item);
@@ -59,8 +60,8 @@ class YoutubeDownloader extends Downloader{
             return new Promise((resolve, reject) => {
                 if(global.test){
                     // 测试，跳过下载直接写入一个文件
-                    new File().save(fileName, 'test').then(() => {
-                        let size = new File().getSize(fileName);
+                    new File().save(_path, 'test').then(() => {
+                        let size = new File().getSize(_path);
                         item.audio.url = name + extension;
                         item.audio.length = size ? size : 655555;
                         resolve(item);
@@ -70,7 +71,7 @@ class YoutubeDownloader extends Downloader{
                 }else{
                     // todo 优化logger
                     let url = item.link;
-                    const stream = ytdl(url, {filter: 'audioonly'}).pipe(fs.createWriteStream(fileName));
+                    const stream = ytdl(url, {filter: 'audioonly'}).pipe(fs.createWriteStream(_path));
                     stream.on('close', () => {
                         console.log('download [%s] close', url);
                     })
@@ -82,7 +83,7 @@ class YoutubeDownloader extends Downloader{
         
                     stream.on('finish', () => {
                         console.log('download [%s] finish', url);
-                        let size = new File().getSize(fileName);
+                        let size = new File().getSize(_path);
                         item.audio.url = name + extension;
                         item.audio.length = size ? size : 655555;
                         resolve(item);
