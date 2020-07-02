@@ -15,10 +15,13 @@ const log4js = {
         default: { appenders: ['console', 'sys'], level: 'info' },
     }
 }
-
+const DOMAIN = 'http://yournian.top'; 
+const PORT = '3030';
 const YOUTUBE_KEY = '';
 
 module.exports = {
+    DOMAIN,
+    PORT,
     log4js,
     YOUTUBE_KEY
 }

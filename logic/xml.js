@@ -17,7 +17,7 @@ class Xml{
 
     async parse(content){
         logger.debug('====xml parse====');
-        let parser = new xml2js.Parser();
+        let parser = new xml2js.Parser({xmldec: {encoding: 'GBK'}});
         let result;
         try{
             result = await parser.parseStringPromise(content);
@@ -81,23 +81,29 @@ class RssXml extends Xml{
             }
 
             let items = [];
-            channel.item.forEach(item => {
-                items.push({
-                    'title': item.title[0].trim(),
-                    'guid': item.guid ? item.guid[0] : '',
-                    'description': '', //item.description[0].trim(),
-                    'pubDate': item.pubDate[0].trim(),
-                    'link': item.link[0].trim(),
-                    'audio': {}
+            if(channel.item){
+                channel.item.forEach(item => {
+                    let newItem = {
+                        'title': item.title ? item.title[0].trim() : '',
+                        'guid': item.guid ? item.guid[0] : '',
+                        'description': item.description ? item.description[0].trim() : '',
+                        'pubDate': item.pubDate ? item.pubDate[0].trim() : '',
+                        'link': item.link ? item.link[0].trim() : '',
+                        'audio': {} 
+                    }
+                    if(item.enclosure && item.enclosure[0]){
+                        newItem.audio = item.enclosure[0]['$'];
+                    }
+                    items.push(newItem);
                 });
-            });
-
+            }
+            
             return {
                 'info': info, 
                 'items': items
             }
         }catch(err){
-            console.log(`RssXml handle failed: `, err);
+            logger.error(`RssXml handle failed: `, err);
         }
     }
 }

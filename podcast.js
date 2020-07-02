@@ -1,22 +1,19 @@
 const logger = require('./util/logger').getLogger();
 const http = require('./http');
+const {PORT} = require('./config');
 const schedule = require('./util/schedule');
-const Updater = require('./logic/updater');
-const {CHANNEL, PORT} = require('./consts');
+const update = require('./logic/updater');
 
-global.test = false;
+
+global.test = true;
 
 function run(){
     // 即刻运行
     update();
-    // 每隔6小时运行一次
-    schedule.repeat('01 */6 * * *', update);
+    // // 每隔6小时运行一次
+    // schedule.repeat('01 */6 * * *', update);
     http.listen(PORT);
-}
-
-function update(){
-    let updater = new Updater();
-    updater.updateFeeds(CHANNEL);
+    logger.info('server listening on [%s]', PORT);
 }
 
 process.on('uncaughtException', function (err) {
@@ -27,7 +24,6 @@ process.on('uncaughtException', function (err) {
 process.on('unhandledRejection', function (err) {
     logger.error('Caught unhandledRejection ', err);
 });
-
 
 
 run();

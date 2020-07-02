@@ -4,15 +4,11 @@ const Str = require('./str');
 const File = require('./myFile');
 const path = require('path');
 const {PATH} = require('../consts');
+const request = require('request');
 
 
-class Downloader{
+class Youtube{
     constructor(){
-
-    }
-
-    download(url){
-        console.log('download [%s]', url);
     }
 
     checkName(name){
@@ -20,15 +16,6 @@ class Downloader{
             name = new Str().randomStr();
         }
         return name;
-    }
-
-    checkExtension(extension){
-    }
-}
-
-class YoutubeDownloader extends Downloader{
-    constructor(){
-        super();
     }
 
     downloadItems(items){
@@ -44,16 +31,17 @@ class YoutubeDownloader extends Downloader{
     }
 
     download(item){
-        super.download(item.link, item.title);
-        let name  = super.checkName(item.title);
+        console.debug('download itme[%s]', item.title);
+        let name  = this.checkName(item.title);
         let extension = this.checkExtension('.m4a');
         let _path = path.join('static', PATH.media, name + extension);
         if(new File().isExistSync(_path)){
-            console.log('download escape : already existed file[%s]', name);
+            console.debug('download escape : already existed file[%s]', name);
+            let size = new File().getSize(_path);
+            item.audio.url = name + extension;
+            item.audio.length = size ? size : 655555;
+
             return new Promise((resolve, reject) => {
-                let size = new File().getSize(_path);
-                item.audio.url = name + extension;
-                item.audio.length = size ? size : 655555;
                 resolve(item);
             })
         }else{
@@ -69,7 +57,6 @@ class YoutubeDownloader extends Downloader{
                         reject(err);
                     })
                 }else{
-                    // todo 优化logger
                     let url = item.link;
                     const stream = ytdl(url, {filter: 'audioonly'}).pipe(fs.createWriteStream(_path));
                     stream.on('close', () => {
@@ -100,8 +87,24 @@ class YoutubeDownloader extends Downloader{
     checkExtension(extension){
         return '.m4a'
     }
+
+    getChannelInfo(parts, id, key) {
+        let part = parts.join(',');
+        part = part ? part : 'snippet';
+        let url = `https://www.googleapis.com/youtube/v3/channels?part=${part}&id=${id}&key=${key}`;
+
+        return new Promise((resolve, reject) => {
+            request(url, (error, response, body) => {
+                if (error) {
+                    logger.error('getChannelInfo failed: ', error);
+                    resolve(null);
+                } else {
+                    logger.info('getChannelInfo scuueed');
+                    resolve(body);
+                }
+            })
+        })
+    }
 }
 
-module.exports = {
-    YoutubeDownloader,
-}
+module.exports = Youtube;

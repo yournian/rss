@@ -1,6 +1,6 @@
-const request = require('request');
 const File = require('./myFile');
 const logger = require('./logger').getLogger();
+const request = require('superagent');
 
 class Html{
     constructor(url, content){
@@ -20,14 +20,14 @@ class HtmlDownloader{
     async download(url){
         logger.debug('====html download====');
         return new Promise((resolve, reject) => {
-            request(url, async (error, response, body) => {
-                if (error) {
-                    logger.error('download failed: ', error);
-                    reject(error);
+            request.get(url, async (err, res) => {
+                if (err) {
+                    logger.error('download failed: errmsg[%s], url[%s] ', err.message, url);
+                    resolve(null);
                 }else{
-                    if(response.statusCode == 200){
+                    if(res.statusCode == 200){
                         logger.info('download scuueed');
-                        resolve(new Html(url, body));
+                        resolve(new Html(url, res.body));
                     }else{
                         logger.warn('download unsuccessful, statusCode[%s], statusMessage[%s],url[%s] ', response.statusCode, response.statusMessage, url);
                         resolve(null);

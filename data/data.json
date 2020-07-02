@@ -1,0 +1,19 @@
+[
+    {
+        "name": "stone",
+        "value": "UCghLs6s95LrBWOdlZUCH4qw",
+        "type": "youtube"
+    },
+    {
+        "name": "x3cn_life",
+        "value": "http://www.x3cn.com/forum.php?mod=rss&fid=67",
+        "type": "rss",
+        "encoding": "GBK"
+    },
+    {
+        "name": "x3cn_estate",
+        "value": "http://www.x3cn.com/forum.php?mod=rss&fid=111",
+        "type": "rss",
+        "encoding": "GBK"
+    }
+]

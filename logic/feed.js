@@ -3,14 +3,14 @@ const File = require('../util/myFile');
 const file = new File();
 const logger = require('../util/logger').getLogger();
 const path = require('path');
-const {PATH, DomainName, PORT} = require('../consts');
+const {PATH, MAX_ITEM_LEN} = require('../consts');
+const {DOMAIN, PORT} = require('../config');
 
 class Item{
     constructor(title, guid, audio, pubDate, link, description){
         this.title = title;
         this.guid = guid;
-        this.audio = this.setAudio(audio);
-        
+        this.audio = audio;
         this.pubDate = pubDate;
         this.link = link;
         this.description = description;
@@ -20,35 +20,11 @@ class Item{
         return new Date(this.pubDate) > new Date(item.pubDate);
     }
 
-    setAudio(audio){
-        let url = '';
-        let length = 0;
-        let type = '';
-        if(audio){
-            url = audio.url ? this.getMediaPath(audio.url) : '',
-            length = audio.length ? audio.length : 65555,
-            type = audio.type ? audio.type : 'audio/x-m4a'
-        }
-        return {
-            url,
-            length,
-            type
-        } 
-    }
-
     format(){
         logger.debug('====feed format====');
         let formation = [
             {
                 'title': this.title
-            },
-            {
-                _name: 'enclosure',
-                _attrs: {
-                    url: this.audio.url,
-                    length: this.audio.length,
-                    type: this.audio.type ? this.audio.type : 'audio/x-m4a'
-                }
             },
             // {
             //     _name: 'guid',
@@ -70,13 +46,25 @@ class Item{
             // {
             //     'image': this.image.format()
             // }
-        ]
+        ];
+        if(this.audio.url){
+            formation.push(
+                {
+                    _name: 'enclosure',
+                    _attrs: {
+                        url: this.audio.url,
+                        length: this.audio.length,
+                        type: this.audio.type ? this.audio.type : 'm4a'
+                    }
+                }
+            )
+        }
         return formation;
     }
 
     getMediaPath(name){
         let _path = path.join(PATH.media, name);
-        return DomainName + ':' + PORT + '/' + _path;
+        return DOMAIN + ':' + PORT + '/' + _path;
     }
 
     setMediaPath(name){
@@ -109,7 +97,8 @@ class Image{
 }
 
 class Feed{
-    constructor(){
+    constructor(type){
+        this.type = type;
         this.info = {
             'title': '',
             'link': '',
@@ -121,7 +110,7 @@ class Feed{
             // 'items': []
         }
         this.items = [];
-        this.maxItemNum = 20;
+        this.maxItemNum = MAX_ITEM_LEN;
     }
 
     generateEmpty(info){
@@ -137,7 +126,7 @@ class Feed{
         this.info.href = href ? href : '';
         this.info.description = description ? description : '';
         this.info.language = language ? language : 'zh-cn';
-        this.info.pubDate = pubDate ? pubDate : new Date();
+        this.info.pubDate = pubDate ? pubDate : new Date().toUTCString();
         if(image){
             this.info.image.setInfo(image);
         }
@@ -175,23 +164,19 @@ class Feed{
     addItems(items){
         logger.debug('====feed addItems====');
         if(items.length == 0) return;
-        let len = this.items.length;
+
         for(let item of items){
-            if(len < this.maxItemNum){
-                this.addItem(item);
-                len++;
-            }else{
-                logger.debug('====feed addItems reach max====');
-                break;
-            }
+            this.addItem(item);
         }
     }
 
     addItem(item){
         logger.debug('====feed addItem====');
         let {title, guid, audio, pubDate, link, description} = item;
-        let _item = new Item(title, guid, audio, pubDate, link, description)
-        if(this.isInvalidAudio(audio)){
+        let _item = new Item(title, guid, audio, pubDate, link, description);
+
+        // todo
+        if(audio.url && this.isInvalidAudio(audio)){
             logger.warn('item[%s] invalid audio[%s]', title, JSON.stringify(audio));
             _item.setMediaPath(title);
         }
@@ -199,13 +184,8 @@ class Feed{
     }
 
     isInvalidAudio(audio){
-        if(
-            !audio || 
-            !audio.url ||
-            !audio.url.includes('.m4a')
-        ){
-            return true;
-        }
+        let valid = audio.url && audio.url.includes('.m4a');
+        return !valid;
     }
 
     writeFile(fileName) {
@@ -226,10 +206,10 @@ class Feed{
         return xml.writeObj(obj, xmlOptions, fileName);
     }
 
-    updateFile(fileName){
+    updateFile(name){
+        let path = this.getLocalPath(name);
         logger.debug('====feed updateFile====');
-        this.info.pubDate = new Date();
-        return this.writeFile(fileName);
+        return this.writeFile(path);
     }
     
     genContent() {
@@ -271,7 +251,7 @@ class Feed{
         };
 
         this.sortItems();
-        for(let item of this.items){
+        for(let item of this.items.slice(0, MAX_ITEM_LEN)){
             content.channel.push({'item': item.format()});
         }
         return content;
@@ -288,11 +268,9 @@ class Feed{
 
     getHref(name){
         let _path = path.join(PATH.feed, name + '.xml')
-        return DomainName + ':' + PORT + '/' + _path;
+        return DOMAIN + '/' + _path; // 无端口
+        // return DOMAIN + ':' + PORT + '/' + _path; //有端口
     }
 }
 
-module.exports = {
-    Feed,
-    Item
-};
+module.exports = Feed;
