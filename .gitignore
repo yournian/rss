@@ -104,5 +104,9 @@ dist
 # TernJS port file
 .tern-port
 .DS_Store
-static/*
 .vscode/launch.json
+# ignore all files in subDir/, except for .gitkeep
+static/feed/*
+static/media/*
+
+!.gitkeep
