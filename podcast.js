@@ -5,7 +5,7 @@ const schedule = require('./util/schedule');
 const update = require('./logic/updater');
 
 
-global.test = true;
+global.test = false;
 
 function run(){
     // 即刻运行
