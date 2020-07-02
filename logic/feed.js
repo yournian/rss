@@ -40,7 +40,7 @@ class Item{
                 'link': this.link
             },
             {
-                'description': this.description
+                'description': '' //this.description
             }
             // ,
             // {
