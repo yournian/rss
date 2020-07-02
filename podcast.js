@@ -11,7 +11,7 @@ function run(){
     // 即刻运行
     update();
     // // 每隔6小时运行一次
-    // schedule.repeat('01 */6 * * *', update);
+    schedule.repeat('01 */6 * * *', update);
     http.listen(PORT);
     logger.info('server listening on [%s]', PORT);
 }
