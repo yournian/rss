@@ -96,10 +96,10 @@ class Youtube{
         return new Promise((resolve, reject) => {
             request(url, (error, response, body) => {
                 if (error) {
-                    logger.error('getChannelInfo failed: ', error);
+                    console.error('getChannelInfo failed: ', error);
                     resolve(null);
                 } else {
-                    logger.info('getChannelInfo scuueed');
+                    console.info('getChannelInfo scuueed');
                     resolve(body);
                 }
             })
