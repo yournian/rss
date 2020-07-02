@@ -26,10 +26,10 @@ class HtmlDownloader{
                     resolve(null);
                 }else{
                     if(res.statusCode == 200){
-                        logger.info('download scuueed');
+                        logger.info('download scuueed: url[%s]', url);
                         resolve(new Html(url, res.body));
                     }else{
-                        logger.warn('download unsuccessful, statusCode[%s], statusMessage[%s],url[%s] ', response.statusCode, response.statusMessage, url);
+                        logger.warn('download unsuccessful, statusCode[%s], statusMessage[%s], url[%s] ', response.statusCode, response.statusMessage, url);
                         resolve(null);
                     }
                 }

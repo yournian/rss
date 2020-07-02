@@ -151,9 +151,13 @@ class Feed{
     async rebuild(content){
         logger.debug('====feed rebuild====');
         let xml = new RssXml();
-        let {info, items} = await xml.parse(content);
-        this.setInfo(info);
-        this.addItems(items);
+        let feed = await xml.parse(content);
+        if(!feed){
+            logger.warn('rebuild parse no result');
+            return;
+        }
+        this.setInfo(feed.info);
+        this.addItems(feed.items);
     }
 
     getInfo(){

@@ -17,7 +17,7 @@ class Xml{
 
     async parse(content){
         logger.debug('====xml parse====');
-        let parser = new xml2js.Parser({xmldec: {encoding: 'GBK'}});
+        let parser = new xml2js.Parser();
         let result;
         try{
             result = await parser.parseStringPromise(content);
