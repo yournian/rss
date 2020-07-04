@@ -5,7 +5,7 @@ const logger = require('../util/logger').getLogger();
 const path = require('path');
 const {PATH, MAX_ITEM_LEN} = require('../consts');
 const {DOMAIN, PORT} = require('../config');
-
+const {md5} = require('../util/crypto');
 
 class Item{
     constructor(title, guid, audio, pubDate, link, description){
@@ -68,18 +68,25 @@ class Item{
         return formation;
     }
 
-    getMediaPath(name){
-        let _path = path.join(PATH.media, name);
+    getAliasName(name){
+        return md5(name).slice(0,10);
+    }
+
+    getMediaPath(title){
+        let alias = this.getAliasName(title);
+        let filename = alias + '.m4a';
+        let _path = path.join(PATH.media, filename);
         return DOMAIN + '/' + _path; // 无端口
         // return DOMAIN + ':' + PORT + '/' + _path;// 有端口
     }
 
-    setMediaPath(name){
-        let filename = name + '.m4a';
+    setMediaPath(title){
+        let alias = this.getAliasName(title);
+        let filename = alias + '.m4a';
         let _path = path.join('static', PATH.media, filename);
         if(file.isExistSync(_path)){
-            logger.debug('文件已存在[%s]', name);
-            this.audio.url = this.getMediaPath(filename);
+            logger.debug('文件已存在[%s]', title);
+            this.audio.url = this.getMediaPath(title);
             this.audio.length = file.getSize(_path);;
         }
     }

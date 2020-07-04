@@ -5,7 +5,7 @@ const File = require('./myFile');
 const path = require('path');
 const {PATH} = require('../consts');
 const request = require('request');
-
+const {md5} = require('./crypto');
 
 class Youtube{
     constructor(){
@@ -30,15 +30,20 @@ class Youtube{
         return this.download(item);
     }
 
+    getAliasName(name){
+        return md5(name).slice(0,10);
+    }
+
     download(item){
         console.debug('download itme[%s]', item.title);
         let name  = this.checkName(item.title);
+        let alias = this.getAliasName(name);
         let extension = this.checkExtension('.m4a');
-        let _path = path.join('static', PATH.media, name + extension);
+        let _path = path.join('static', PATH.media, alias + extension);
         if(new File().isExistSync(_path)){
             console.debug('download escape : already existed file[%s]', name);
             let size = new File().getSize(_path);
-            item.audio.url = name + extension;
+            item.audio.url = alias + extension;
             item.audio.length = size ? size : 655555;
 
             return new Promise((resolve, reject) => {
@@ -50,7 +55,7 @@ class Youtube{
                     // 测试，跳过下载直接写入一个文件
                     new File().save(_path, 'test').then(() => {
                         let size = new File().getSize(_path);
-                        item.audio.url = name + extension;
+                        item.audio.url = alias + extension;
                         item.audio.length = size ? size : 655555;
                         resolve(item);
                     }).catch((err) => {
@@ -71,7 +76,7 @@ class Youtube{
                     stream.on('finish', () => {
                         console.log('download [%s] finish', url);
                         let size = new File().getSize(_path);
-                        item.audio.url = name + extension;
+                        item.audio.url = alias + extension;
                         item.audio.length = size ? size : 655555;
                         resolve(item);
                     })
