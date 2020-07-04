@@ -5,7 +5,7 @@ const logger = require('../util/logger').getLogger();
 const {MAX_RETYR_TIMES} = require('../consts');
 const { YOUTUBE_KEY } = require('../config');
 const Youtube = require('../util/youtube');
-const Feed = require('./feed');
+const FeedFactory = require('./feed');
 const iconv = require("iconv-lite");
 
 
@@ -93,7 +93,7 @@ class YoutubeHandler extends Handler{
             return;
         }
     
-        let feed = new Feed();
+        let feed = new FeedFactory().getFeed('podcast');
         let exist = await feed.readFromFile(name);
         if (!exist) {
             let href = feed.getHref(name);
@@ -229,7 +229,7 @@ class RssHandler extends Handler{
             return;
         }
     
-        let feed = new Feed();
+        let feed = new FeedFactory().getFeed('text');
         let exist = await feed.readFromFile(name);
         if (!exist) {
             let href = feed.getHref(name);

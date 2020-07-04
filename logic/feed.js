@@ -6,6 +6,7 @@ const path = require('path');
 const {PATH, MAX_ITEM_LEN} = require('../consts');
 const {DOMAIN, PORT} = require('../config');
 
+
 class Item{
     constructor(title, guid, audio, pubDate, link, description){
         this.title = title;
@@ -20,7 +21,7 @@ class Item{
         return new Date(this.pubDate) > new Date(item.pubDate);
     }
 
-    format(){
+    format(option){
         logger.debug('====feed format====');
         let formation = [
             {
@@ -39,14 +40,18 @@ class Item{
             {
                 'link': this.link
             },
-            {
-                'description': '' //this.description
-            }
             // ,
             // {
             //     'image': this.image.format()
             // }
         ];
+
+        if(option && option.desc){
+            formation.push({
+                'description': this.description
+            });
+        }
+
         if(this.audio.url){
             formation.push(
                 {
@@ -59,12 +64,14 @@ class Item{
                 }
             )
         }
+
         return formation;
     }
 
     getMediaPath(name){
         let _path = path.join(PATH.media, name);
-        return DOMAIN + ':' + PORT + '/' + _path;
+        return DOMAIN + '/' + _path; // 无端口
+        // return DOMAIN + ':' + PORT + '/' + _path;// 有端口
     }
 
     setMediaPath(name){
@@ -97,8 +104,7 @@ class Image{
 }
 
 class Feed{
-    constructor(type){
-        this.type = type;
+    constructor(){
         this.info = {
             'title': '',
             'link': '',
@@ -176,20 +182,6 @@ class Feed{
 
     addItem(item){
         logger.debug('====feed addItem====');
-        let {title, guid, audio, pubDate, link, description} = item;
-        let _item = new Item(title, guid, audio, pubDate, link, description);
-
-        // todo
-        if(audio.url && this.isInvalidAudio(audio)){
-            logger.warn('item[%s] invalid audio[%s]', title, JSON.stringify(audio));
-            _item.setMediaPath(title);
-        }
-        this.items.push(_item);
-    }
-
-    isInvalidAudio(audio){
-        let valid = audio.url && audio.url.includes('.m4a');
-        return !valid;
     }
 
     writeFile(fileName) {
@@ -216,7 +208,7 @@ class Feed{
         return this.writeFile(path);
     }
     
-    genContent() {
+    genContent(itemLen = MAX_ITEM_LEN) {
         logger.debug('====feed genContent====');
         let content = {
             'channel': [
@@ -255,8 +247,8 @@ class Feed{
         };
 
         this.sortItems();
-        for(let item of this.items.slice(0, MAX_ITEM_LEN)){
-            content.channel.push({'item': item.format()});
+        for(let item of this.items.slice(0, itemLen)){
+            content.channel.push({'item': item.format({desc: this.showDesc})});
         }
         return content;
     }
@@ -277,4 +269,60 @@ class Feed{
     }
 }
 
-module.exports = Feed;
+class PodcastFeed extends Feed{
+    constructor(){
+        super();
+        this.showDesc = false;
+    }
+
+    addItem(item){
+        let {title, guid, audio, pubDate, link, description} = item;
+        let _item = new Item(title, guid, audio, pubDate, link, description);
+        if(this.isInvalidAudio(audio)){
+            logger.warn('item[%s] invalid audio[%s]', title, JSON.stringify(audio));
+            _item.setMediaPath(title);
+        }
+        this.items.push(_item);
+    }
+
+    isInvalidAudio(audio){
+        let valid = audio.url && audio.url.includes('.m4a') && audio.url.includes('http');
+        return !valid;
+    }
+}
+
+class TextFeed extends Feed{
+    constructor(){
+        super();
+        this.showDesc = true;
+    }
+
+    addItem(item){
+        let {title, guid, audio, pubDate, link, description} = item;
+        let _item = new Item(title, guid, audio, pubDate, link, description);
+        this.items.push(_item);
+    }
+}
+
+class FeedFactory{
+    constructor(){
+
+    }
+
+    getFeed(type){
+        let feed = null;
+        switch(type){
+            case 'podcast':
+                feed = new PodcastFeed();
+                break;
+            case 'text':
+                feed = new TextFeed();
+                break;
+            default:
+                break; 
+        }
+        return feed;
+    }
+}
+
+module.exports = FeedFactory;
