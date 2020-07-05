@@ -139,7 +139,7 @@ class Feed{
         this.info.href = href ? href : '';
         this.info.description = description ? description : '';
         this.info.language = language ? language : 'zh-cn';
-        this.info.pubDate = pubDate ? pubDate : new Date().toUTCString();
+        this.info.pubDate = new Date().toUTCString();
         if(image){
             this.info.image.setInfo(image);
         }
