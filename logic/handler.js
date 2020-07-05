@@ -251,6 +251,7 @@ class RssHandler extends Handler{
     async genInfo(name, url, href, info){
         super.genInfo(name);
         info.href = href;
+        info.pubDate = new Date().toUTCString();
         return info;
     }
 }
