@@ -25,6 +25,8 @@
   },
   "homepage": "https://github.com/yournian/youtube_podcast#readme",
   "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "escape-html": "^1.0.3",
     "iconv-lite": "^0.6.0",
     "jstoxml": "^1.6.5",
     "koa": "^2.12.0",
