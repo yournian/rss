@@ -6,6 +6,7 @@ const path = require('path');
 const {PATH, MAX_ITEM_LEN} = require('../consts');
 const {DOMAIN, PORT} = require('../config');
 const {md5} = require('../util/crypto');
+const escape = require('escape-html');
 
 class Item{
     constructor(title, guid, audio, pubDate, link, description){
@@ -17,15 +18,11 @@ class Item{
         this.description = description;
     }
 
-    isLaterThen(item){
-        return new Date(this.pubDate) > new Date(item.pubDate);
-    }
-
     format(option){
         logger.debug('====feed format====');
         let formation = [
             {
-                'title': this.title
+                'title': escape(this.title) // 转义
             },
             // {
             //     _name: 'guid',
@@ -48,11 +45,11 @@ class Item{
 
         if(option && option.desc){
             formation.push({
-                'description': this.description
+                'description': escape(this.description)
             });
         }
 
-        if(this.audio.url){
+        if(this.audio && this.audio.url){
             formation.push(
                 {
                     _name: 'enclosure',
@@ -181,9 +178,15 @@ class Feed{
     addItems(items){
         logger.debug('====feed addItems====');
         if(items.length == 0) return;
+        let titles = [];
+        this.items.forEach((item) => {
+            titles.push(item.title);
+        })
 
         for(let item of items){
-            this.addItem(item);
+            if(!titles.includes(item.title)){
+                this.addItem(item);
+            }
         }
     }
 
@@ -217,52 +220,58 @@ class Feed{
     
     genContent(itemLen = MAX_ITEM_LEN) {
         logger.debug('====feed genContent====');
-        let content = {
-            'channel': [
-                {
-                    'title': this.info.title
+        let channel = [
+            {
+                'title': escape(this.info.title) // 转义
+            },
+            {
+                'link': this.info.link
+            },
+            {
+                '_name': 'atom:link',
+                '_attrs': {
+                    'href': this.info.href,
+                    'rel': 'self',
+                    'type': 'application/rss+xml'
                 },
-                {
-                    'link': this.info.link
-                },
-                {
-                    '_name': 'atom:link',
-                    '_attrs': {
-                        'href': this.info.href,
-                        'rel': 'self',
-                        'type': 'application/rss+xml'
-                    },
-                    'content': ''
-                },
-                {
-                    'language': this.info.language
-                },
-                {
-                    'description': this.info.description
-                },
-                {
-                    'pubDate': this.info.pubDate
-                },
-                {
-                    'image': {
-                        'url': this.info.image.url,
-                        'title': this.info.image.title,
-                        'link': this.info.image.link
-                    }
-                }
-            ]
-        };
+                'content': ''
+            },
+            {
+                'language': this.info.language
+            },
+            {
+                'description': escape(this.info.description)
+            },
+            {
+                'pubDate': this.info.pubDate
+            }
+        ];
 
+        if(this.info.image && this.info.image.url){
+            channel.push({
+                'image': {
+                    'url': this.info.image.url,
+                    'title': escape(this.info.image.title),
+                    'link': this.info.image.link
+                }
+            })
+        }
         this.sortItems();
         for(let item of this.items.slice(0, itemLen)){
-            content.channel.push({'item': item.format({desc: this.showDesc})});
+            channel.push({'item': item.format({desc: this.showDesc})});
         }
+
+        let content = {
+            'channel': channel
+        };
         return content;
     }
 
     sortItems(){
         logger.debug('====feed sortItems====');
-        this.items.sort((a, b) => b.isLaterThen(a));
+        this.items.sort((a, b) => {
+            return new Date(b.pubDate) - new Date(a.pubDate);
+        });
     }
 
     getLocalPath(name){

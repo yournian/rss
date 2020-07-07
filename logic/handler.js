@@ -6,8 +6,7 @@ const {MAX_RETYR_TIMES} = require('../consts');
 const { YOUTUBE_KEY } = require('../config');
 const Youtube = require('../util/youtube');
 const FeedFactory = require('./feed');
-const iconv = require("iconv-lite");
-
+const cheerio = require('cheerio');
 
 class Handler{
     constructor(){
@@ -34,11 +33,11 @@ class Handler{
         }, timeout);
     }
 
-    readFromUrl(url) {
+    readFromUrl(url, encoding) {
         logger.debug('====handler readFromUrl====');
         if(!url) return null;
         let htmlDownlaoder = new HtmlDownloader();
-        return htmlDownlaoder.download(url);
+        return htmlDownlaoder.download(url, encoding);
     }
 
     readFromFile(fileName) {
@@ -46,13 +45,10 @@ class Handler{
         return new File().read(fileName);
     }
 
-    async parse(buffer, encoding) {
+    async parse(content) {
         logger.debug('====handler parse====');
-        if(!encoding) encoding = 'utf-8';
-
         try {
             let xml = new RssXml();
-            let content = iconv.decode(buffer, encoding);
             let { info, items } = await xml.parse(content);
             if (items && items.length == 0) {
                 logger.warn('handler parse: no items');
@@ -214,9 +210,9 @@ class RssHandler extends Handler{
     async updateFeed(config){
         let {name, value, encoding} = config;
         let url = value;
-        let html = await this.readFromUrl(url);
+        let html = await this.readFromUrl(url, encoding);
         if(!html){return null};
-        let {info, items} = await this.parse(html.content, encoding);
+        let {info, items} = await this.parse(html.content);
         
         if (!items) {
             logger.warn('updateFeed[%s] failed, retry later', name);
@@ -256,6 +252,158 @@ class RssHandler extends Handler{
     }
 }
 
+class Rule{
+    constructor(){
+        this.parentToken = '';
+        this.columnToken = '';
+        this.infoTokens = {};
+    }
+
+    build(rules){
+        this.parentToken = rules[0];
+        this.columnToken = rules[1];
+        this.infoTokens = rules[2];
+    }
+}
+
+class WebsiteHandler extends Handler{
+    constructor(){
+        super();
+        this.rule = new Rule();
+    }
+
+    async updateFeed(config){
+        let {name, value, rules, encoding, description} = config;
+        let url = value;
+        // let html = await this.readFromUrl(url, encoding);
+        let html = await this.readFromFile('./test/badminton.html');
+
+        if(!html){return null};
+
+        this.rule.build(rules);
+        let {info, items} = await this.parse(html); //todo
+        info.title = name;
+        info.link = url;
+        info.description = description;
+
+        if (!items) {
+            logger.warn('updateFeed[%s] failed, retry later', name);
+            this.reUpdateFeed(config);
+            return;
+        }
+
+        if (items.length == 0) {
+            logger.info('updateFeed[%s], no items', name);
+            return;
+        }
+    
+        let feed = new FeedFactory().getFeed('text');
+        let exist = await feed.readFromFile(name);
+        if (!exist) {
+            let href = feed.getHref(name);
+            let newInfo = await this.genInfo(name, url, href, info);
+            feed.generateEmpty(newInfo);
+            logger.info('updateFeed[%s], generate empty feed', name);
+        }
+
+        feed.addItems(items);
+        let succeed = await feed.updateFile(name);
+        if (succeed) {
+            logger.info('updateFeed[%s] succeed', name);
+        } else {
+            logger.error('updateFeed[%s] failed', name);
+        }
+        return succeed;
+    }
+
+    parseElement(rule){
+        if(!rule) return null;
+        function recursion(arr){
+            if (arr.length == 0) return;
+            let obj = {};
+            let temp = arr[0].split('->');
+            if(!temp[0]) return ;
+    
+            obj.tag = temp[0];
+            if (temp[1]) {
+                obj.value = temp[1];
+            } else {
+                obj.child = recursion(arr.slice(1))
+            }
+            return obj;
+        }
+    
+        let arr = rule.split('|');
+        return recursion(arr);
+    }
+
+    getEleValue($, source, ele){
+        let target = $($(source).find(ele.tag));
+        
+        while(ele.child){
+            let node = target.find(ele.child.tag);
+            target = $(node);
+            ele = ele.child;
+        }
+        let value = target.attr(ele.value);
+        return value;
+
+    }
+
+    async parse(content) {
+        logger.debug('====handler parse====');
+        try {
+            var $ = cheerio.load(content);
+            let {parentToken, columnToken, infoTokens} = this.rule;
+            let parent = $(parentToken)
+            let columns = parent.find(columnToken);
+            let items = [];
+            for(let i = 0; i < columns.length; i++){
+                let column = columns[i];
+                let item = {};
+                for(let token in infoTokens){
+                    if(infoTokens[token] == '[object Object]'){
+                        item[token] = {};
+                        for(let subToken in infoTokens[token]){
+                            let ele = this.parseElement(infoTokens[token][subToken]);
+                            let value = this.getEleValue($, column, ele);
+                            item[token][subToken] = value;
+                        }
+                    }else{
+                        let ele = this.parseElement(infoTokens[token]);
+                        if(ele){
+                            let value = this.getEleValue($, column, ele);
+                            switch(token){
+                                case 'pubDate':
+                                    value = new Date(value).toUTCString();
+                                    break;
+                                default:
+                                    break;
+                            }
+                            item[token] = value;
+                        }else{
+                            item[token] = '';
+                        }
+                    }
+                }
+                items.push(item);    
+            }        
+            let info = {};
+            return {info, items};
+        } catch (err) {
+            logger.error('parse html failed: ', err);
+            return {};
+        }
+    }
+
+    async genInfo(name, url, href, info){
+        super.genInfo(name);
+        info.href = href;
+        info.pubDate = new Date().toUTCString();
+        return info;
+    }
+}
+
 class HandlerFactory{
     constructor(){}
 
@@ -268,6 +416,8 @@ class HandlerFactory{
             case 'youtube':
                 handler = new YoutubeHandler();
                 break;
+            case 'website':
+                handler = new WebsiteHandler();
             default:
                 break;
         }

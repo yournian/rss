@@ -15,5 +15,25 @@
         "value": "http://www.x3cn.com/forum.php?mod=rss&fid=111",
         "type": "rss",
         "encoding": "GBK"
+    },
+    {
+        "name": "bwfbadminton",
+        "value": "https://bwfbadminton.com/news/",
+        "type": "website",
+        "rules": [
+            "#newsfeed", 
+            ".col",
+                {
+                "link": "a->href",
+                "title": "a->title",
+                "image": {
+                    "link": "a|.thumb|img->src",
+                    "title" : "a|.thumb|img->alt"
+                } ,
+                "pubDate": "a|.entry-meta|.posted-on|time->datetime",
+                "description": ""
+            }
+        ],
+        "description": "bwf badminton news"
     }
 ]
