@@ -275,13 +275,13 @@ class WebsiteHandler extends Handler{
     async updateFeed(config){
         let {name, value, rules, encoding, description} = config;
         let url = value;
-        // let html = await this.readFromUrl(url, encoding);
-        let html = await this.readFromFile('./test/badminton.html');
+        let html = await this.readFromUrl(url, encoding);
+        // let html = await this.readFromFile('./test/badminton.html');
 
         if(!html){return null};
 
         this.rule.build(rules);
-        let {info, items} = await this.parse(html); //todo
+        let {info, items} = await this.parse(html.content); //todo
         info.title = name;
         info.link = url;
         info.description = description;
