@@ -20,7 +20,7 @@ class HtmlDownloader{
     }
 
     decode(buffer, encoding){
-        if(!Buffer.isBuffer(buffer)) return;
+        if(!Buffer.isBuffer(buffer)) return buffer;
         if(!encoding) encoding = 'utf-8';
         return iconv.decode(buffer, encoding);;
     }
