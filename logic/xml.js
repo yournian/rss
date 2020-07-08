@@ -42,6 +42,7 @@ class Xml{
         logger.debug('====xml writeObj====');
         try{
             let content = toXML(obj, option);
+            content = content.replace('^S', '');
             await file.save(filename, content);
             // console.log('write obj to xml file succeed');
             return true;
