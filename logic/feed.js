@@ -61,7 +61,6 @@ class Item{
                 }
             )
         }
-        console.log(this.title, '||', escape(this.title));
         return formation;
     }
 
