@@ -22,7 +22,7 @@ class Item{
         logger.debug('====feed format====');
         let formation = [
             {
-                'title': escape(this.title).replace('  ', ' ') // 转义
+                'title': escape(this.title) // 转义
             },
             // {
             //     _name: 'guid',
