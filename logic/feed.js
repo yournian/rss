@@ -6,7 +6,7 @@ const path = require('path');
 const {PATH, MAX_ITEM_LEN} = require('../consts');
 const {DOMAIN, PORT} = require('../config');
 const {md5} = require('../util/crypto');
-const escape = require('escape-html');
+const {escape} = require('../util/tool');
 
 class Item{
     constructor(title, guid, audio, pubDate, link, description){
