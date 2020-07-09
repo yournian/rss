@@ -1,7 +1,7 @@
 
 const HandlerFactory= require('./handler');
 const feeds = require('../data/data.json');
-const logger = require('../util/logger').getLogger();
+const logger = require('../util/logger');
 
 function update(){
     let factory = new HandlerFactory();

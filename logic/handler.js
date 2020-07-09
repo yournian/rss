@@ -1,9 +1,9 @@
 const File = require('../util/myFile');
 const { RssXml } = require('./xml');
 const { HtmlDownloader } = require('../util/html');
-const logger = require('../util/logger').getLogger();
+const logger = require('../util/logger');
 const {MAX_RETYR_TIMES} = require('../consts');
-const { YOUTUBE_KEY } = require('../config');
+const {youtube_key} = require('../config.json');
 const Youtube = require('../util/youtube');
 const FeedFactory = require('./feed');
 const cheerio = require('cheerio');
@@ -179,7 +179,7 @@ class YoutubeHandler extends Handler{
             'link': ''
         }
 
-        let info = await new Youtube().getChannelInfo(['snippet'], id, YOUTUBE_KEY);
+        let info = await new Youtube().getChannelInfo(['snippet'], id, youtube_key);
         if (!info) return image;
 
         try {

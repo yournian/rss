@@ -2,7 +2,7 @@ const xml2js = require('xml2js');
 const { toXML } = require('jstoxml');
 const File = require('../util/myFile');
 let file = new File();
-const logger = require('../util/logger').getLogger();
+const logger = require('../util/logger');
 
 class Xml{
     constructor(){

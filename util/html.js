@@ -1,5 +1,5 @@
 const File = require('./myFile');
-const logger = require('./logger').getLogger();
+const logger = require('./logger');
 const request = require('superagent');
 const iconv = require("iconv-lite");
 

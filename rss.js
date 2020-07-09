@@ -1,6 +1,6 @@
-const logger = require('./util/logger').getLogger();
+const logger = require('./util/logger');
 const http = require('./http');
-const {PORT} = require('./config');
+const config = require('./config.json');
 const schedule = require('./util/schedule');
 const update = require('./logic/updater');
 
@@ -12,8 +12,8 @@ function run(){
     update();
     // // 每隔6小时运行一次
     schedule.repeat('01 */6 * * *', update);
-    http.listen(PORT);
-    logger.info('server listening on [%s]', PORT);
+    http.listen(config.port);
+    logger.info('server listening on [%s]', config.port);
 }
 
 process.on('uncaughtException', function (err) {

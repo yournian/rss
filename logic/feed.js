@@ -1,10 +1,10 @@
 const {RssXml} = require('./xml');
 const File = require('../util/myFile');
 const file = new File();
-const logger = require('../util/logger').getLogger();
+const logger = require('../util/logger');
 const path = require('path');
 const {PATH, MAX_ITEM_LEN} = require('../consts');
-const {DOMAIN, PORT} = require('../config');
+const config = require('../config.json');
 const {md5} = require('../util/crypto');
 const {escape} = require('../util/tool');
 
@@ -72,8 +72,8 @@ class Item{
         let alias = this.getAliasName(title);
         let filename = alias + '.m4a';
         let _path = path.join(PATH.media, filename);
-        return DOMAIN + '/' + _path; // 无端口
-        // return DOMAIN + ':' + PORT + '/' + _path;// 有端口
+        return config.domain + '/' + _path; // 无端口
+        // return config.domain + ':' + config.port + '/' + _path;// 有端口
     }
 
     setMediaPath(title){
@@ -279,8 +279,8 @@ class Feed{
 
     getHref(name){
         let _path = path.join(PATH.feed, name + '.xml')
-        return DOMAIN + '/' + _path; // 无端口
-        // return DOMAIN + ':' + PORT + '/' + _path; //有端口
+        return config.domain + '/' + _path; // 无端口
+        // return config.domain + ':' + config.port + '/' + _path; //有端口
     }
 }
 
