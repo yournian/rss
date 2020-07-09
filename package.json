@@ -1,13 +1,14 @@
 {
-  "name": "youtube_podcast",
+  "name": "rss",
   "version": "1.0.0",
-  "description": "turn youtube videos into audio padcast",
-  "main": "index.js",
+  "description": "turn website, youtube audio into rss feed",
+  "main": "rss.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node rss.js",
+    "test": "mocha test"
   },
   "repository": {
     "type": "git",
@@ -16,7 +17,7 @@
   "keywords": [
     "youtube",
     "podcast",
-    "audio"
+    "rss"
   ],
   "author": "yournian",
   "license": "ISC",
