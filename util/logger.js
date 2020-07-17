@@ -1,4 +1,4 @@
-let level = require('../config.json').logLevel;
+let level = require('../config.json').logLvl;
 level = level ? level : 'info';
 
 const config = {
