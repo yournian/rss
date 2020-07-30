@@ -64,6 +64,11 @@ class Handler{
     genInfo(name){
         logger.debug('====handler genInfo[%s]====', name);
     }
+
+    transDate(str){
+        str = str.replace('th', '');
+        return new Date(str).toUTCString();
+    }
 }
 
 class YoutubeHandler extends Handler{
@@ -275,8 +280,13 @@ class WebsiteHandler extends Handler{
     async updateFeed(config){
         let {name, value, rules, encoding, description} = config;
         let url = value;
+        
+        // 测试
+        // let html = {};
+        // html.content = await this.readFromFile('./test/badmintonasia.html');
+        
+        // 上线 
         let html = await this.readFromUrl(url, encoding);
-        // let html = await this.readFromFile('./test/badminton.html');
 
         if(!html){return null};
 
@@ -346,6 +356,11 @@ class WebsiteHandler extends Handler{
             ele = ele.child;
         }
         let value = target.attr(ele.value);
+
+        if(!value && ele.value == 'value'){
+            value = target.text();
+        }
+
         return value;
 
     }
@@ -375,7 +390,7 @@ class WebsiteHandler extends Handler{
                             let value = this.getEleValue($, column, ele);
                             switch(token){
                                 case 'pubDate':
-                                    value = new Date(value).toUTCString();
+                                    value = this.transDate(value);
                                     break;
                                 default:
                                     break;

@@ -5,6 +5,11 @@
         "type": "youtube"
     },
     {
+        "name": "dingge",
+        "value": "UCocjIjAfjq-JaNYPQRPcjUQ",
+        "type": "youtube"
+    },
+    {
         "name": "x3cn_life",
         "value": "http://www.x3cn.com/forum.php?mod=rss&fid=67",
         "type": "rss",
@@ -35,5 +40,25 @@
             }
         ],
         "description": "bwf badminton news"
+    },
+    {
+        "name": "badmintonasia",
+        "value": "https://www.badmintonasia.org/updates/news",
+        "type": "website",
+        "rules": [
+            ".list-news", 
+            ".items",
+                {
+                "link": ".wrap|h5|a->href",
+                "title": ".wrap|h5|a->value",
+                "image": {
+                    "link": ".image|a|img->src",
+                    "title" : ".wrap|h5|a->value"
+                } ,
+                "pubDate": ".wrap|.date->value",
+                "description": ""
+            }
+        ],
+        "description": "asia badminton news"
     }
 ]
