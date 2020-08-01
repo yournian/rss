@@ -1,54 +1,28 @@
 const {RssXml} = require('./xml');
 const File = require('../util/myFile');
 const file = new File();
-const logger = require('../util/logger').getLogger();
+const logger = require('../util/logger');
 const path = require('path');
-const {PATH, DomainName, PORT} = require('../consts');
+const {PATH, MAX_ITEM_LEN} = require('../consts');
+const config = require('../config.json');
+const {md5} = require('../util/crypto');
+const {escape} = require('../util/tool');
 
 class Item{
     constructor(title, guid, audio, pubDate, link, description){
         this.title = title;
         this.guid = guid;
-        this.audio = this.setAudio(audio);
-        
+        this.audio = audio;
         this.pubDate = pubDate;
         this.link = link;
         this.description = description;
     }
 
-    isLaterThen(item){
-        return new Date(this.pubDate) > new Date(item.pubDate);
-    }
-
-    setAudio(audio){
-        let url = '';
-        let length = 0;
-        let type = '';
-        if(audio){
-            url = audio.url ? this.getMediaPath(audio.url) : '',
-            length = audio.length ? audio.length : 65555,
-            type = audio.type ? audio.type : 'audio/x-m4a'
-        }
-        return {
-            url,
-            length,
-            type
-        } 
-    }
-
-    format(){
+    format(option){
         logger.debug('====feed format====');
         let formation = [
             {
-                'title': this.title
-            },
-            {
-                _name: 'enclosure',
-                _attrs: {
-                    url: this.audio.url,
-                    length: this.audio.length,
-                    type: this.audio.type ? this.audio.type : 'audio/x-m4a'
-                }
+                'title': escape(this.title) // 转义
             },
             // {
             //     _name: 'guid',
@@ -63,28 +37,52 @@ class Item{
             {
                 'link': this.link
             },
-            {
-                'description': this.description
-            }
             // ,
             // {
             //     'image': this.image.format()
             // }
-        ]
+        ];
+
+        if(option && option.desc){
+            formation.push({
+                'description': escape(this.description)
+            });
+        }
+
+        if(this.audio && this.audio.url){
+            formation.push(
+                {
+                    _name: 'enclosure',
+                    _attrs: {
+                        url: this.audio.url,
+                        length: this.audio.length,
+                        type: this.audio.type ? this.audio.type : 'm4a'
+                    }
+                }
+            )
+        }
         return formation;
     }
 
-    getMediaPath(name){
-        let _path = path.join(PATH.media, name);
-        return DomainName + ':' + PORT + '/' + _path;
+    getAliasName(name){
+        return md5(name).slice(0,10);
     }
 
-    setMediaPath(name){
-        let filename = name + '.m4a';
+    getMediaPath(title){
+        let alias = this.getAliasName(title);
+        let filename = alias + '.m4a';
+        let _path = path.join(PATH.media, filename);
+        return config.domain + '/' + _path; // 无端口
+        // return config.domain + ':' + config.port + '/' + _path;// 有端口
+    }
+
+    setMediaPath(title){
+        let alias = this.getAliasName(title);
+        let filename = alias + '.m4a';
         let _path = path.join('static', PATH.media, filename);
         if(file.isExistSync(_path)){
-            logger.debug('文件已存在[%s]', name);
-            this.audio.url = this.getMediaPath(filename);
+            logger.debug('文件已存在[%s]', title);
+            this.audio.url = this.getMediaPath(title);
             this.audio.length = file.getSize(_path);;
         }
     }
@@ -121,7 +119,7 @@ class Feed{
             // 'items': []
         }
         this.items = [];
-        this.maxItemNum = 20;
+        this.maxItemNum = MAX_ITEM_LEN;
     }
 
     generateEmpty(info){
@@ -137,7 +135,7 @@ class Feed{
         this.info.href = href ? href : '';
         this.info.description = description ? description : '';
         this.info.language = language ? language : 'zh-cn';
-        this.info.pubDate = pubDate ? pubDate : new Date();
+        this.info.pubDate = new Date().toUTCString();
         if(image){
             this.info.image.setInfo(image);
         }
@@ -162,9 +160,13 @@ class Feed{
     async rebuild(content){
         logger.debug('====feed rebuild====');
         let xml = new RssXml();
-        let {info, items} = await xml.parse(content);
-        this.setInfo(info);
-        this.addItems(items);
+        let feed = await xml.parse(content);
+        if(!feed){
+            logger.warn('rebuild parse no result');
+            return;
+        }
+        this.setInfo(feed.info);
+        this.addItems(feed.items);
     }
 
     getInfo(){
@@ -175,37 +177,20 @@ class Feed{
     addItems(items){
         logger.debug('====feed addItems====');
         if(items.length == 0) return;
-        let len = this.items.length;
+        let titles = [];
+        this.items.forEach((item) => {
+            titles.push(item.title);
+        })
+
         for(let item of items){
-            if(len < this.maxItemNum){
+            if(!titles.includes(item.title)){
                 this.addItem(item);
-                len++;
-            }else{
-                logger.debug('====feed addItems reach max====');
-                break;
             }
         }
     }
 
     addItem(item){
         logger.debug('====feed addItem====');
-        let {title, guid, audio, pubDate, link, description} = item;
-        let _item = new Item(title, guid, audio, pubDate, link, description)
-        if(this.isInvalidAudio(audio)){
-            logger.warn('item[%s] invalid audio[%s]', title, JSON.stringify(audio));
-            _item.setMediaPath(title);
-        }
-        this.items.push(_item);
-    }
-
-    isInvalidAudio(audio){
-        if(
-            !audio || 
-            !audio.url ||
-            !audio.url.includes('.m4a')
-        ){
-            return true;
-        }
     }
 
     writeFile(fileName) {
@@ -226,60 +211,66 @@ class Feed{
         return xml.writeObj(obj, xmlOptions, fileName);
     }
 
-    updateFile(fileName){
+    updateFile(name){
+        let path = this.getLocalPath(name);
         logger.debug('====feed updateFile====');
-        this.info.pubDate = new Date();
-        return this.writeFile(fileName);
+        return this.writeFile(path);
     }
     
-    genContent() {
+    genContent(itemLen = MAX_ITEM_LEN) {
         logger.debug('====feed genContent====');
-        let content = {
-            'channel': [
-                {
-                    'title': this.info.title
+        let channel = [
+            {
+                'title': escape(this.info.title) // 转义
+            },
+            {
+                'link': this.info.link
+            },
+            {
+                '_name': 'atom:link',
+                '_attrs': {
+                    'href': this.info.href,
+                    'rel': 'self',
+                    'type': 'application/rss+xml'
                 },
-                {
-                    'link': this.info.link
-                },
-                {
-                    '_name': 'atom:link',
-                    '_attrs': {
-                        'href': this.info.href,
-                        'rel': 'self',
-                        'type': 'application/rss+xml'
-                    },
-                    'content': ''
-                },
-                {
-                    'language': this.info.language
-                },
-                {
-                    'description': this.info.description
-                },
-                {
-                    'pubDate': this.info.pubDate
-                },
-                {
-                    'image': {
-                        'url': this.info.image.url,
-                        'title': this.info.image.title,
-                        'link': this.info.image.link
-                    }
-                }
-            ]
-        };
+                'content': ''
+            },
+            {
+                'language': this.info.language
+            },
+            {
+                'description': escape(this.info.description)
+            },
+            {
+                'pubDate': this.info.pubDate
+            }
+        ];
 
-        this.sortItems();
-        for(let item of this.items){
-            content.channel.push({'item': item.format()});
+        if(this.info.image && this.info.image.url){
+            channel.push({
+                'image': {
+                    'url': this.info.image.url,
+                    'title': escape(this.info.image.title),
+                    'link': this.info.image.link
+                }
+            })
         }
+        this.sortItems();
+        for(let item of this.items.slice(0, itemLen)){
+            channel.push({'item': item.format({desc: this.showDesc})});
+        }
+
+        let content = {
+            'channel': channel
+        };
         return content;
     }
 
     sortItems(){
         logger.debug('====feed sortItems====');
-        this.items.sort((a, b) => b.isLaterThen(a));
+        this.items.sort((a, b) => {
+            return new Date(b.pubDate) - new Date(a.pubDate);
+        });
     }
 
     getLocalPath(name){
@@ -288,11 +279,65 @@ class Feed{
 
     getHref(name){
         let _path = path.join(PATH.feed, name + '.xml')
-        return DomainName + ':' + PORT + '/' + _path;
+        return config.domain + '/' + _path; // 无端口
+        // return config.domain + ':' + config.port + '/' + _path; //有端口
     }
 }
 
-module.exports = {
-    Feed,
-    Item
-};
+class PodcastFeed extends Feed{
+    constructor(){
+        super();
+        this.showDesc = false;
+    }
+
+    addItem(item){
+        let {title, guid, audio, pubDate, link, description} = item;
+        let _item = new Item(title, guid, audio, pubDate, link, description);
+        if(this.isInvalidAudio(audio)){
+            logger.warn('item[%s] invalid audio[%s]', title, JSON.stringify(audio));
+            _item.setMediaPath(title);
+        }
+        this.items.push(_item);
+    }
+
+    isInvalidAudio(audio){
+        let valid = audio.url && audio.url.includes('.m4a') && audio.url.includes('http');
+        return !valid;
+    }
+}
+
+class TextFeed extends Feed{
+    constructor(){
+        super();
+        this.showDesc = true;
+    }
+
+    addItem(item){
+        let {title, guid, audio, pubDate, link, description} = item;
+        let _item = new Item(title, guid, audio, pubDate, link, description);
+        this.items.push(_item);
+    }
+}
+
+class FeedFactory{
+    constructor(){
+
+    }
+
+    getFeed(type){
+        let feed = null;
+        switch(type){
+            case 'podcast':
+                feed = new PodcastFeed();
+                break;
+            case 'text':
+                feed = new TextFeed();
+                break;
+            default:
+                break; 
+        }
+        return feed;
+    }
+}
+
+module.exports = FeedFactory;

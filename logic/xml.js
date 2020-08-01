@@ -2,7 +2,7 @@ const xml2js = require('xml2js');
 const { toXML } = require('jstoxml');
 const File = require('../util/myFile');
 let file = new File();
-const logger = require('../util/logger').getLogger();
+const logger = require('../util/logger');
 
 class Xml{
     constructor(){
@@ -43,7 +43,6 @@ class Xml{
         try{
             let content = toXML(obj, option);
             await file.save(filename, content);
-            // console.log('write obj to xml file succeed');
             return true;
         }catch(err){
             console.error('write obj to xml filr failed: [%s]', err);
@@ -62,13 +61,11 @@ class RssXml extends Xml{
         logger.debug('====rssxml handle====');
         try{
             let channel = result.rss.channel[0];
-    
-            
             let info = {
-                'title': channel.title[0].trim(),
-                'link': channel.link[0].trim(),
-                'description': channel.description[0].trim(),
-                'href': channel['atom:link'][0]['$'].href.trim(),
+                'title': channel.title ? channel.title[0].trim() : '',
+                'link': channel.link ? channel.link[0].trim() : '',
+                'description': channel.description ? channel.description[0].trim() : '',
+                'href': channel['atom:link'] ? channel['atom:link'][0]['$'].href.trim() : '',
                 'pubDate': channel.pubDate ? channel.pubDate[0].trim() : '',
                 'image': {}
             }
@@ -83,23 +80,29 @@ class RssXml extends Xml{
             }
 
             let items = [];
-            channel.item.forEach(item => {
-                items.push({
-                    'title': item.title[0].trim(),
-                    'guid': item.guid ? item.guid[0] : '',
-                    'description': '', //item.description[0].trim(),
-                    'pubDate': item.pubDate[0].trim(),
-                    'link': item.link[0].trim(),
-                    'audio': {}
+            if(channel.item){
+                channel.item.forEach(item => {
+                    let newItem = {
+                        'title': item.title ? item.title[0].trim() : '',
+                        'guid': item.guid ? item.guid[0] : '',
+                        'description': item.description ? item.description[0].trim() : '',
+                        'pubDate': item.pubDate ? item.pubDate[0].trim() : '',
+                        'link': item.link ? item.link[0].trim() : '',
+                        'audio': {} 
+                    }
+                    if(item.enclosure && item.enclosure[0]){
+                        newItem.audio = item.enclosure[0]['$'];
+                    }
+                    items.push(newItem);
                 });
-            });
-
+            }
+            
             return {
                 'info': info, 
                 'items': items
             }
         }catch(err){
-            console.log(`RssXml handle failed: `, err);
+            logger.error(`RssXml handle failed: `, err);
         }
     }
 }

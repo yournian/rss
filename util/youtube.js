@@ -4,15 +4,11 @@ const Str = require('./str');
 const File = require('./myFile');
 const path = require('path');
 const {PATH} = require('../consts');
+const request = require('request');
+const {md5} = require('./crypto');
 
-
-class Downloader{
+class Youtube{
     constructor(){
-
-    }
-
-    download(url){
-        console.log('download [%s]', url);
     }
 
     checkName(name){
@@ -20,15 +16,6 @@ class Downloader{
             name = new Str().randomStr();
         }
         return name;
-    }
-
-    checkExtension(extension){
-    }
-}
-
-class YoutubeDownloader extends Downloader{
-    constructor(){
-        super();
     }
 
     downloadItems(items){
@@ -43,17 +30,23 @@ class YoutubeDownloader extends Downloader{
         return this.download(item);
     }
 
+    getAliasName(name){
+        return md5(name).slice(0,10);
+    }
+
     download(item){
-        super.download(item.link, item.title);
-        let name  = super.checkName(item.title);
+        console.debug('download itme[%s]', item.title);
+        let name  = this.checkName(item.title);
+        let alias = this.getAliasName(name);
         let extension = this.checkExtension('.m4a');
-        let _path = path.join('static', PATH.media, name + extension);
+        let _path = path.join('static', PATH.media, alias + extension);
         if(new File().isExistSync(_path)){
-            console.log('download escape : already existed file[%s]', name);
+            console.debug('download escape : already existed file[%s]', name);
+            let size = new File().getSize(_path);
+            item.audio.url = alias + extension;
+            item.audio.length = size ? size : 655555;
+
             return new Promise((resolve, reject) => {
-                let size = new File().getSize(_path);
-                item.audio.url = name + extension;
-                item.audio.length = size ? size : 655555;
                 resolve(item);
             })
         }else{
@@ -62,14 +55,13 @@ class YoutubeDownloader extends Downloader{
                     // 测试，跳过下载直接写入一个文件
                     new File().save(_path, 'test').then(() => {
                         let size = new File().getSize(_path);
-                        item.audio.url = name + extension;
+                        item.audio.url = alias + extension;
                         item.audio.length = size ? size : 655555;
                         resolve(item);
                     }).catch((err) => {
                         reject(err);
                     })
                 }else{
-                    // todo 优化logger
                     let url = item.link;
                     const stream = ytdl(url, {filter: 'audioonly'}).pipe(fs.createWriteStream(_path));
                     stream.on('close', () => {
@@ -84,7 +76,7 @@ class YoutubeDownloader extends Downloader{
                     stream.on('finish', () => {
                         console.log('download [%s] finish', url);
                         let size = new File().getSize(_path);
-                        item.audio.url = name + extension;
+                        item.audio.url = alias + extension;
                         item.audio.length = size ? size : 655555;
                         resolve(item);
                     })
@@ -100,8 +92,24 @@ class YoutubeDownloader extends Downloader{
     checkExtension(extension){
         return '.m4a'
     }
+
+    getChannelInfo(parts, id, key) {
+        let part = parts.join(',');
+        part = part ? part : 'snippet';
+        let url = `https://www.googleapis.com/youtube/v3/channels?part=${part}&id=${id}&key=${key}`;
+
+        return new Promise((resolve, reject) => {
+            request(url, (error, response, body) => {
+                if (error) {
+                    console.error('getChannelInfo failed: ', error);
+                    resolve(null);
+                } else {
+                    console.info('getChannelInfo scuueed');
+                    resolve(body);
+                }
+            })
+        })
+    }
 }
 
-module.exports = {
-    YoutubeDownloader,
-}
+module.exports = Youtube;

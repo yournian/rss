@@ -1,18 +1,14 @@
-const CHANNEL = {
-    'stone': {
-        'id': 'UCghLs6s95LrBWOdlZUCH4qw'
-    },
-}
 
-const DomainName = 'http://yournian.top'; 
-const PORT = '3030';
 const PATH = {
     'media': 'media/',
     'feed': 'feed/'
 }
+const MAX_RETYR_TIMES = 5;
+const MAX_ITEM_LEN = 20;
+
+
 module.exports = {
-    CHANNEL,
-    DomainName,
-    PORT,
-    PATH
+    PATH,
+    MAX_RETYR_TIMES,
+    MAX_ITEM_LEN
 }

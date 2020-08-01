@@ -1,11 +1,24 @@
 const {RssXml} = require('../logic/xml');
+const { HtmlDownloader } = require('../util/html');
 const { toXML } = require('jstoxml');
 
 
 async function parseFile(name) {
     const xml = new RssXml();
-    await xml.parseFile(name);
-    console.log(xml.items.length);
+    let {info, items} = await xml.parseFile(name);
+    console.log(items.length);
+}
+
+async function parseUrl(url) {
+    let html = await new HtmlDownloader().download(url);
+    if(!html){
+        console.warn('parseUrl failed: empty');
+        return;
+    }
+
+    const xml = new RssXml();
+    let {info, items} = await xml.parse(html.content);
+    console.log(items.length);
 }
 
 function build() {
@@ -264,4 +277,7 @@ function genContent() {
     return content;
 }
 
-module.exports = parseFile;
+module.exports = {
+    parseFile,
+    parseUrl
+};
