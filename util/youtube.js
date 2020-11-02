@@ -110,6 +110,23 @@ class Youtube{
             })
         })
     }
+
+    getPlaylist(parts, id, key){
+        let part = parts.join(',');
+        part = part ? part : 'snippet';
+        let url = `https://youtube.googleapis.com/youtube/v3/playlists?part=${part}&channelId=${id}&maxResults=10&key=${key}`;
+        return new Promise((resolve, reject) => {
+            request(url, (error, response, body) => {
+                if (error) {
+                    console.error('getPlaylist failed: ', error);
+                    resolve(null);
+                } else {
+                    console.info('getPlaylist scuueed');
+                    resolve(body);
+                }
+            })
+        })
+    }
 }
 
 module.exports = Youtube;
