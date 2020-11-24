@@ -88,7 +88,7 @@ class YoutubeHandler extends Handler{
         // let html = await this.rssHub(channel);
         let html = await this.readFromUrl(url);
         if(!html){return null};
-        let {info, items} = await this.parse(html);
+        let {info, items} = await this.parse(html.content);
 
         if (!items) {
             logger.warn('updateFeed[%s] failed, retry later', name);
