@@ -84,7 +84,7 @@ class YoutubeHandler extends Handler{
     async updateFeed(config) {
         let {name, value} = config;
         let channel = value;
-        let url = 'https://www.youtube.com/channel/' + channel;
+        let url = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + channel;
         // let html = await this.rssHub(channel);
         let html = await this.readFromUrl(url);
         if(!html){return null};
