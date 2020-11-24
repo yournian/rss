@@ -1,5 +1,5 @@
 const File = require('../util/myFile');
-const { RssXml } = require('./xml');
+const { RssXml, YoutubeXml } = require('./xml');
 const { HtmlDownloader } = require('../util/html');
 const logger = require('../util/logger');
 const {MAX_RETYR_TIMES} = require('../consts');
@@ -45,10 +45,15 @@ class Handler{
         return new File().read(fileName);
     }
 
-    async parse(content) {
+    async parse(content, type) {
         logger.debug('====handler parse====');
         try {
-            let xml = new RssXml();
+            let xml;
+            if(type == 'ytbFeed'){
+                xml = new YoutubeXml();
+            }else{
+                xml = new RssXml();
+            }
             let { info, items } = await xml.parse(content);
             if (items && items.length == 0) {
                 logger.warn('handler parse: no items');
@@ -79,9 +84,11 @@ class YoutubeHandler extends Handler{
     async updateFeed(config) {
         let {name, value} = config;
         let channel = value;
-        let html = await this.rssHub(channel);
+        let url = 'https://www.youtube.com/channel/' + channel;
+        // let html = await this.rssHub(channel);
+        let html = await this.readFromUrl(url);
         if(!html){return null};
-        let {info, items} = await this.parse(html.content);
+        let {info, items} = await this.parse(html);
 
         if (!items) {
             logger.warn('updateFeed[%s] failed, retry later', name);
@@ -204,7 +211,9 @@ class YoutubeHandler extends Handler{
         }
     }
 
-    
+    async parse(content) {
+        return super.parse(content, 'ytbFeed');
+    }
 }
 
 class RssHandler extends Handler{
