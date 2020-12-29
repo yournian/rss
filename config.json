@@ -1,6 +1,6 @@
 {
-    "domain": "http://yournian.top",
+    "domain": "https://yournian.top",
     "port" : 3030,
-    "youtube_key": "",
+    "youtube_key": "AIzaSyC7AB01-vJWxC6bRVGwj3jLA56hFzWfylY",
     "logLvl": "info"
 }
