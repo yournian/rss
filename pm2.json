@@ -1,0 +1,15 @@
+{
+  "apps": [
+  {
+    "name": "rss",
+    "script": "./production.js",
+    "exec_mode": "fork",
+    "max_memory_restart": "5G",
+    "autorestart": true,
+    "node_args": ["--tls-min-v1.0"],
+    "args": [],
+    "env": {
+      
+    }
+  }]
+}

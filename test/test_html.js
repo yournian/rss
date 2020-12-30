@@ -1,6 +1,8 @@
 const {HtmlDownloader} = require('../util/html');
 
-let url = 'http://43.255.30.23/feed/rss.xml';
+let url = 'https://www.badmintonasia.org/updates/news';
+let filename = 'badmintonasia.html';
+
 async function test(){
     let dowmloader = new HtmlDownloader();
     let html;
@@ -9,8 +11,7 @@ async function test(){
     }catch(err) {
         console.error(err);
     }
-    html.save('rss.xml');
-    // console.log(html);
+    html.save(filename);
 }
 
 test();

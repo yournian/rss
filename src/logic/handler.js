@@ -3,7 +3,7 @@ const { RssXml, YoutubeXml } = require('./xml');
 const { HtmlDownloader } = require('../util/html');
 const logger = require('../util/logger');
 const {MAX_RETYR_TIMES} = require('../consts');
-const {youtube_key} = require('../config.json');
+const {youtube_key} = require('../../config');
 const Youtube = require('../util/youtube');
 const FeedFactory = require('./feed');
 const cheerio = require('cheerio');
@@ -83,6 +83,8 @@ class YoutubeHandler extends Handler{
 
     async updateFeed(config) {
         let {name, value} = config;
+        console.log(name, value);
+        return;
         let channel = value;
         let url = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + channel;
         // let html = await this.rssHub(channel);
@@ -223,6 +225,8 @@ class RssHandler extends Handler{
 
     async updateFeed(config){
         let {name, value, encoding} = config;
+        console.log(name, value);
+        return;
         let url = value;
         let html = await this.readFromUrl(url, encoding);
         if(!html){return null};
@@ -288,6 +292,8 @@ class WebsiteHandler extends Handler{
 
     async updateFeed(config){
         let {name, value, rules, encoding, description} = config;
+        // console.log(name, value);
+        return;
         let url = value;
         
         // 测试
