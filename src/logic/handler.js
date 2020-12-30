@@ -1,4 +1,5 @@
 const File = require('../util/myFile');
+const file = new File();
 const { RssXml, YoutubeXml } = require('./xml');
 const { HtmlDownloader } = require('../util/html');
 const logger = require('../util/logger');
@@ -7,6 +8,8 @@ const {youtube_key} = require('../../config');
 const Youtube = require('../util/youtube');
 const FeedFactory = require('./feed');
 const cheerio = require('cheerio');
+const isDev = global.config.env == 'dev';
+
 
 class Handler{
     constructor(){
@@ -40,9 +43,14 @@ class Handler{
         return htmlDownlaoder.download(url, encoding);
     }
 
-    readFromFile(fileName) {
+    async readFromFile(path) {
         logger.debug('====handler readFromFile====');
-        return new File().read(fileName);
+        let exist = await file.isExist(path);
+        if(exist){
+            return await file.read(path);
+        }else{
+            return null;
+        }
     }
 
     async parse(content, type) {
@@ -83,8 +91,8 @@ class YoutubeHandler extends Handler{
 
     async updateFeed(config) {
         let {name, value} = config;
-        console.log(name, value);
-        return;
+        console.log('update youtube2', name, value);
+        return; // test
         let channel = value;
         let url = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + channel;
         // let html = await this.rssHub(channel);
@@ -94,7 +102,7 @@ class YoutubeHandler extends Handler{
 
         if (!items) {
             logger.warn('updateFeed[%s] failed, retry later', name);
-            this.reUpdateFeed(config);
+            // this.reUpdateFeed(config);
             return;
         }
 
@@ -142,7 +150,7 @@ class YoutubeHandler extends Handler{
         logger.debug('====youtube rssHub====');
         const prefix = 'https://rsshub.app/youtube/channel/';
         let url = prefix + channel;
-        if (global.test) {
+        if (isDev) {
             // test 
             url = `http://localhost:3030/feed/test_youtube.xml`;
         }
@@ -177,7 +185,7 @@ class YoutubeHandler extends Handler{
     }
 
     async getImage(id) {
-        if (global.test) {
+        if (isDev) {
             return new Promise((resolve, reject) => {
                 resolve({
                     'url': 'url',
@@ -225,16 +233,15 @@ class RssHandler extends Handler{
 
     async updateFeed(config){
         let {name, value, encoding} = config;
-        console.log(name, value);
-        return;
         let url = value;
         let html = await this.readFromUrl(url, encoding);
-        if(!html){return null};
+        if(!html) return;
+
         let {info, items} = await this.parse(html.content);
         
         if (!items) {
             logger.warn('updateFeed[%s] failed, retry later', name);
-            this.reUpdateFeed(config);
+            // this.reUpdateFeed(config);
             return;
         }
 
@@ -292,16 +299,25 @@ class WebsiteHandler extends Handler{
 
     async updateFeed(config){
         let {name, value, rules, encoding, description} = config;
-        // console.log(name, value);
-        return;
+        console.log('update web', name, value);
         let url = value;
         
-        // 测试
-        // let html = {};
-        // html.content = await this.readFromFile('./test/badmintonasia.html');
-        
-        // 上线 
-        let html = await this.readFromUrl(url, encoding);
+        let html;
+        if(isDev){
+            // 测试
+            let content = await this.readFromFile(`static/temp/${name}.html`);
+            if(!content){
+                html = await this.readFromUrl(url, encoding);
+                await html.save(`static/temp/${name}.html`);
+                console.log('=====save====');
+            }else{
+                html = {'content': content};
+            }
+        }else{
+            // 上线
+            html = await this.readFromUrl(url, encoding);
+
+        }
 
         if(!html){return null};
 
@@ -313,7 +329,7 @@ class WebsiteHandler extends Handler{
 
         if (!items) {
             logger.warn('updateFeed[%s] failed, retry later', name);
-            this.reUpdateFeed(config);
+            // this.reUpdateFeed(config);
             return;
         }
 

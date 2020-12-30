@@ -144,7 +144,6 @@ class Feed{
     async readFromFile(name){
         logger.debug('====feed readFromFile====');
         let _path = this.getLocalPath(name);
-        
         let exist = await file.isExist(_path);
         if(!exist){
             logger.debug('file[%s] no exists', name);

@@ -8,16 +8,16 @@ module.exports = [
         type: 'youtube',
         interval: 10000,
         //   cron: '0 0 * * *',
-        enable: true,
-        immediate: true
+        enable: false,
+        // immediate: true
     },
     {
         name: "x3cn_life",
         value: "http://www.x3cn.com/forum.php?mod=rss&fid=67",
         type: "rss",
         encoding: "GBK",
-        interval: '1h',
-        enable: devstar,
+        interval: 60*1000, // 30s
+        enable: false,
     }, {
         name: "x3cn_estate",
         value: "http://www.x3cn.com/forum.php?mod=rss&fid=111",
@@ -30,8 +30,8 @@ module.exports = [
         name: "bwfbadminton",
         value: "https://bwfbadminton.com/news/",
         type: "website",
-        interval: '6h',
-        enable: devstar,
+        interval: 10*1000, //'6h'
+        enable: true,
         rules: [
             "#newsfeed",
             ".col",

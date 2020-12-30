@@ -7,8 +7,12 @@ class File{
 
     isExist(name){
         return new Promise((resolve, reject) => {
-            fs.exists(name, (exists) => {
-                resolve(exists);
+            fs.stat(name, (err, stats) => {
+                if(err){
+                    resolve(false);
+                }else{
+                    resolve(true);
+                }
             });
         })
     }

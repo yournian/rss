@@ -2,7 +2,6 @@ const program = require('commander');
 const packageJson = require('../package.json');
 const JobMgr = require('./logic/jobMgr2');
 const crontab = require('./crontab');
-const HandlerFactory = require('./logic/handler');
 
 process.on('uncaughtException', function (err) {
   logger.error('Caught exception ', err);
@@ -35,23 +34,11 @@ if (program.loglvl) {
   logger.level = program.loglvl;
 }
 
-async function myJob(job, done) {
-  let data = job.data;
-  let handler = new HandlerFactory().getHandler(data.type);
-  if(!handler){
-      logger.warn('no such handler[%s]', data.type);
-      job.progress = 100;
-      done('no such handler[%s]', data.type)
-  }else{
-      handler.updateFeed(data);
-      done(null, 'ok')
-  } 
-}
+
 
 function start() {
-  let jobMgr = new JobMgr('updateFeed');
-  jobMgr.process(myJob);
-  jobMgr.load(crontab);
+  let jobMgr = new JobMgr();
+  jobMgr.load(crontab); //test
   logger.info('rss started');
 }
 
