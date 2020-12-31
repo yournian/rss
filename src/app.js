@@ -35,10 +35,9 @@ if (program.loglvl) {
 }
 
 
-
 function start() {
   let jobMgr = new JobMgr();
-  jobMgr.load(crontab); //test
+  jobMgr.load(crontab.slice(0,1)); //test
   logger.info('rss started');
 }
 

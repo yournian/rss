@@ -1,6 +1,5 @@
 const Queue = require('bull');
 const HandlerFactory = require('./handler');
-const { isEmpty } = require('../util/tool');
 
 async function myJob(job, done) {
     let data = job.data;

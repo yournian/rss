@@ -113,7 +113,7 @@ class YoutubeXml extends Xml{
     }
 
     handle(result){
-        logger.debug('====rssxml handle====');
+        logger.debug('====YoutubeXml handle====');
         try{
             let {author, entry} = result.feed;
             let items = [];

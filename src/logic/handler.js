@@ -91,12 +91,17 @@ class YoutubeHandler extends Handler{
 
     async updateFeed(config) {
         let {name, value} = config;
-        console.log('update youtube2', name, value);
-        return; // test
+        console.log('update youtube', name, value);
         let channel = value;
-        let url = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + channel;
-        // let html = await this.rssHub(channel);
-        let html = await this.readFromUrl(url);
+        let html;
+        if(isDev){
+            let content = await this.readFromFile('static/temp/youtube.xml');
+            html = {'content': content};
+        }else{
+            let url = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + channel;
+            html = await this.readFromUrl(url);
+        }
+
         if(!html){return null};
         let {info, items} = await this.parse(html.content);
 
@@ -299,7 +304,6 @@ class WebsiteHandler extends Handler{
 
     async updateFeed(config){
         let {name, value, rules, encoding, description} = config;
-        console.log('update web', name, value);
         let url = value;
         
         let html;

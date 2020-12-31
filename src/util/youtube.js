@@ -51,7 +51,7 @@ class Youtube{
             })
         }else{
             return new Promise((resolve, reject) => {
-                if(global.test){
+                if(global.isDev){
                     // 测试，跳过下载直接写入一个文件
                     new File().save(_path, 'test').then(() => {
                         let size = new File().getSize(_path);

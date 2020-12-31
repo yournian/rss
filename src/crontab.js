@@ -3,12 +3,12 @@ let right_now = true;
 
 module.exports = [
     {
-        name: 'stone1',
+        name: 'stone',
         value: "UCghLs6s95LrBWOdlZUCH4qw",
         type: 'youtube',
-        interval: 10000,
+        interval: 10*1000, // 6h
         //   cron: '0 0 * * *',
-        enable: false,
+        enable: true,
         // immediate: true
     },
     {
@@ -16,22 +16,22 @@ module.exports = [
         value: "http://www.x3cn.com/forum.php?mod=rss&fid=67",
         type: "rss",
         encoding: "GBK",
-        interval: 60*1000, // 30s
-        enable: false,
+        interval: 60*60*1000, // 1h
+        enable: devstar,
     }, {
         name: "x3cn_estate",
         value: "http://www.x3cn.com/forum.php?mod=rss&fid=111",
         type: "rss",
         encoding: "GBK",
-        interval: '1h',
+        interval: 60*60*1000, // 1h
         enable: devstar,
     },
     {
         name: "bwfbadminton",
         value: "https://bwfbadminton.com/news/",
         type: "website",
-        interval: 10*1000, //'6h'
-        enable: true,
+        interval: 6*60*60*1000, // 6h
+        enable: devstar,
         rules: [
             "#newsfeed",
             ".col",
@@ -52,7 +52,7 @@ module.exports = [
         name: "badmintonasia",
         value: "https://www.badmintonasia.org/updates/news",
         type: "website",
-        interval: '6h',
+        interval: 6*60*60*1000, // 6h
         enable: devstar,
         rules: [
             ".list-news",
