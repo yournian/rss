@@ -5,7 +5,7 @@ module.exports = [
         name: 'stone',
         value: "UCghLs6s95LrBWOdlZUCH4qw",
         type: 'youtube',
-        interval: 10*1000, // 6h
+        interval: 6*60**60*1000, // 6h
         //   cron: '0 0 * * *',
         enable: false,
         // immediate: true
