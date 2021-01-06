@@ -8,7 +8,7 @@ module.exports = [
         type: 'youtube',
         interval: 10*1000, // 6h
         //   cron: '0 0 * * *',
-        enable: true,
+        enable: false,
         // immediate: true
     },
     {
@@ -21,6 +21,13 @@ module.exports = [
     }, {
         name: "x3cn_estate",
         value: "http://www.x3cn.com/forum.php?mod=rss&fid=111",
+        type: "rss",
+        encoding: "GBK",
+        interval: 60*60*1000, // 1h
+        enable: devstar,
+    },{
+        name: "x3cn_car",
+        value: "http://www.x3cn.com/forum.php?mod=rss&fid=1",
         type: "rss",
         encoding: "GBK",
         interval: 60*60*1000, // 1h
