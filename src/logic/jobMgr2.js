@@ -22,7 +22,14 @@ class JobMgr {
 
     async addQueue(name) {
         let queue = new Queue(name);
+
+        await queue.clean(100, 'wait');
+        await queue.clean(100, 'completed');
+        await queue.clean(100, 'active');
+        await queue.clean(100, 'delayed');
+        await queue.clean(100, 'failed');
         await queue.empty();
+
         queue
             .on('active', function (job, jobPromise) {
                 console.log('job[%s], activate', job.data.name, new Date());
@@ -54,7 +61,8 @@ class JobMgr {
             if (!enable) continue;
             let model = interval ? { 'every': interval } : { 'cron': cron };
             let queue = this.getQueue(type);
-            queue.add(job, { 'repeat': model, 'delay': 10*1000 }); //todo
+            let obj = await queue.add(job, { 'delay': 1000, 'repeat': model }); //todo
+            console.log(obj);
         }
     }
 
