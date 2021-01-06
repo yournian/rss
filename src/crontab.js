@@ -1,5 +1,4 @@
-let devstar = false;
-let right_now = true;
+let devstar = true;
 
 module.exports = [
     {
