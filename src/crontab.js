@@ -1,5 +1,5 @@
-let devstar = false;
-let immediate = true;
+let enable = true;
+let immediate = false;
 
 
 module.exports = [
@@ -10,7 +10,7 @@ module.exports = [
         interval: 6*60*60*1000, // 6h
         //   cron: '0 0 * * *',
         enable: false,
-        immediate: false
+        immediate: immediate
     },
     {
         name: "x3cn_life",
@@ -18,7 +18,7 @@ module.exports = [
         type: "rss",
         encoding: "GBK",
         interval: 3600000, // 1h
-        enable: devstar,
+        enable: enable,
         immediate: immediate,
     }, {
         name: "x3cn_estate",
@@ -26,7 +26,7 @@ module.exports = [
         type: "rss",
         encoding: "GBK",
         interval: 3600000, // 1h
-        enable: devstar,
+        enable: enable,
         immediate: immediate,
     },{
         name: "x3cn_car",
@@ -34,7 +34,7 @@ module.exports = [
         type: "rss",
         encoding: "GBK",
         interval: 3600000, // 1h
-        enable: devstar,
+        enable: enable,
         immediate: immediate,
     },
     {
@@ -42,7 +42,7 @@ module.exports = [
         value: "https://bwfbadminton.com/news/",
         type: "website",
         interval: 21600000, // 6h
-        enable: devstar,
+        enable: enable,
         immediate: immediate,
         rules: [
             "#newsfeed",
@@ -65,7 +65,7 @@ module.exports = [
         value: "https://www.badmintonasia.org/updates/news",
         type: "website",
         interval: 21600000, // 6h
-        enable: devstar,
+        enable: enable,
         immediate: immediate,
         rules: [
             ".list-news",
