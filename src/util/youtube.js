@@ -27,6 +27,7 @@ class Youtube{
     }
 
     downloadItem(item){
+        // todo 队列
         return this.download(item);
     }
 
@@ -51,7 +52,7 @@ class Youtube{
             })
         }else{
             return new Promise((resolve, reject) => {
-                if(global.test){
+                if(global.isDev){
                     // 测试，跳过下载直接写入一个文件
                     new File().save(_path, 'test').then(() => {
                         let size = new File().getSize(_path);
@@ -105,6 +106,23 @@ class Youtube{
                     resolve(null);
                 } else {
                     console.info('getChannelInfo scuueed');
+                    resolve(body);
+                }
+            })
+        })
+    }
+
+    getPlaylist(parts, id, key){
+        let part = parts.join(',');
+        part = part ? part : 'snippet';
+        let url = `https://youtube.googleapis.com/youtube/v3/playlists?part=${part}&channelId=${id}&maxResults=10&key=${key}`;
+        return new Promise((resolve, reject) => {
+            request(url, (error, response, body) => {
+                if (error) {
+                    console.error('getPlaylist failed: ', error);
+                    resolve(null);
+                } else {
+                    console.info('getPlaylist scuueed');
                     resolve(body);
                 }
             })

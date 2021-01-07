@@ -1,6 +1,6 @@
 const expect = require('chai').expect;
 const Youtube = require('../logic/youtube');
-const {YOUTUBE_KEY} = require('../config');
+const {youtube_key} = require('../config.json');
 const {CHANNEL} = require('../consts');
 
 describe('youtube', () => {
@@ -9,7 +9,7 @@ describe('youtube', () => {
         let parts = ['snippet'];
         let id = CHANNEL['stone'].id;
         try{
-            let data = await youtube.getChannelInfo(parts, id, YOUTUBE_KEY);
+            let data = await youtube.getChannelInfo(parts, id, youtube_key);
             console.log(data);
             expect(data.items[0].id).to.be.equal(id);
         }catch(err){

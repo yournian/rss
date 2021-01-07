@@ -11,7 +11,7 @@ class Html{
     }
 
     save(name){
-        new File().save(name, this.content);
+        return new File().save(name, this.content);
     }
 }
 

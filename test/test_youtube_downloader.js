@@ -1,4 +1,4 @@
-const {YoutubeDownloader} = require('../util/downloader');
+const {YoutubeDownloader} = require('../src/util/downloader');
 
 
 let items = [

@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/yournian/youtube_podcast#readme",
   "dependencies": {
+    "bull": "^3.19.1",
     "cheerio": "^1.0.0-rc.3",
     "commander": "^5.1.0",
     "escape-html": "^1.0.3",
@@ -40,7 +41,8 @@
     "superagent": "^5.3.1",
     "uuid": "^7.0.3",
     "xml2js": "^0.4.23",
-    "ytdl-core": "^2.1.0"
+    "ytdl-core": "^4.2.1",
+    "ytdl-core-discord": "^1.2.5"
   },
   "devDependencies": {
     "chai": "^4.2.0",

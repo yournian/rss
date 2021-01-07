@@ -1,6 +1,6 @@
 const expect = require('chai').expect;
-const {Feed, Item} = require('../logic/feed');
-const {DomainName, PORT} = require('../consts');
+const Feed = require('../logic/feed');
+const config = require('../config.json');
 
 
 describe('feed', () => {
@@ -45,10 +45,30 @@ describe('feed', () => {
 
     it('sortItems', async () => {
         let feed = new Feed();
-        let item1 = new Item('title', 'guid', {}, 'Tue, 12 May 2020 23:00:01 GMT', 'link', 'description');
-        let item2 = new Item('title', 'guid', {}, 'Tue, 12 May 2020 23:00:03 GMT', 'link', 'description');    
-        let item3 = new Item('title', 'guid', {}, 'Tue, 12 May 2020 23:00:02 GMT', 'link', 'description');    
-        
+        let item1 = {
+            'title': 'title', 
+            'guid': 'guid', 
+            'audio': {}, 
+            'pubDate': 'Tue, 12 May 2020 23:00:01 GMT', 
+            'link': 'link', 
+            'description': 'description'
+        }
+        let item2 = {
+            'title': 'title', 
+            'guid': 'guid', 
+            'audio': {}, 
+            'pubDate': 'Tue, 12 May 2020 23:00:02 GMT', 
+            'link': 'link', 
+            'description': 'description'
+        }
+        let item3 = {
+            'title': 'title', 
+            'guid': 'guid', 
+            'audio': {}, 
+            'pubDate': 'Tue, 12 May 2020 23:00:03 GMT', 
+            'link': 'link', 
+            'description': 'description'
+        }
         feed.addItems([item1, item2, item3]);
         feed.sortItems();
         expect(feed.items[0].pubDate).to.be.equal(item2.pubDate);
@@ -63,7 +83,7 @@ describe('feed', () => {
     it.only('getHref', () => {
         let feed = new Feed();
         let path = feed.getHref('name');
-        let url = DomainName + ':' + PORT + '/feed/name.xml';
+        let url = config.domain + ':' + config.port + '/feed/name.xml';
         expect(path).to.be.equal(url);
     })
 
@@ -81,7 +101,7 @@ describe('item', () => {
     it.only('getMediaPath', () => {
         let item = new Item();
         let path = item.getMediaPath('name.mp3');
-        let url = DomainName + ':' + PORT + '/media/name.mp3';
+        let url = config.domain + ':' + config.port + '/media/name.mp3';
         expect(path).to.be.equal(url);
     })
     

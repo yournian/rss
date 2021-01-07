@@ -1,7 +1,7 @@
-let level = require('../config.json').logLvl;
+let level = global.config.logLvl;
 level = level ? level : 'info';
 
-const config = {
+const conf = {
     appenders: {
         sys: {
             type: 'dateFile',
@@ -19,7 +19,7 @@ const config = {
     }
 }
 
-const log4js = require('log4js').configure(config);
+const log4js = require('log4js').configure(conf);
 const logger = log4js.getLogger(); //default
 
 module.exports = logger;

@@ -1,10 +1,11 @@
-const {RssXml} = require('../logic/xml');
+const {RssXml, YoutubeXml} = require('../logic/xml');
 const { HtmlDownloader } = require('../util/html');
 const { toXML } = require('jstoxml');
 
 
 async function parseFile(name) {
-    const xml = new RssXml();
+    // const xml = new RssXml();
+    const xml = new YoutubeXml();
     let {info, items} = await xml.parseFile(name);
     console.log(items.length);
 }

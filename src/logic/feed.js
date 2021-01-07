@@ -4,7 +4,7 @@ const file = new File();
 const logger = require('../util/logger');
 const path = require('path');
 const {PATH, MAX_ITEM_LEN} = require('../consts');
-const config = require('../config.json');
+const config = require('../../config');
 const {md5} = require('../util/crypto');
 const {escape} = require('../util/tool');
 
@@ -144,7 +144,6 @@ class Feed{
     async readFromFile(name){
         logger.debug('====feed readFromFile====');
         let _path = this.getLocalPath(name);
-        
         let exist = await file.isExist(_path);
         if(!exist){
             logger.debug('file[%s] no exists', name);

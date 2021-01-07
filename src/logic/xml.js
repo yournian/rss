@@ -107,7 +107,52 @@ class RssXml extends Xml{
     }
 }
 
+class YoutubeXml extends Xml{
+    constructor(){
+        super();
+    }
+
+    handle(result){
+        logger.debug('====YoutubeXml handle====');
+        try{
+            let {author, entry} = result.feed;
+            let items = [];
+            for(let item of entry){
+                let vid = item['yt:videoId'][0];
+                let title = item['title'][0];
+                let link = item['link'][0]['$']['href'];
+                let published = item['published'][0];
+                items.push({
+                    'title': title ? title.trim() : '',
+                    'guid': '',
+                    'description': '',
+                    'pubDate': published ? published.trim() : '',
+                    'link': link ? link.trim() : '',
+                    'audio': {} 
+                });
+            }
+            let pubDate = entry[0]['published'][0];
+            let info = {
+                'title': author[0]['name'],
+                'link': author[0]['uri'][0],
+                'description': '',
+                'href': '',
+                'pubDate': pubDate,
+                'image': {}
+            }
+            
+            return {
+                'info': info, 
+                'items': items
+            }
+        }catch(err){
+            logger.error(`YoutubeXml handle failed: `, err);
+        }
+    }
+}
+
 
 module.exports = {
-    RssXml
+    RssXml,
+    YoutubeXml
 };
