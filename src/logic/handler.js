@@ -238,6 +238,14 @@ class RssHandler extends Handler{
 
     async updateFeed(config){
         let {name, value, encoding} = config;
+        if(isDev){
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    resolve('done');
+                }, 2000)
+            })
+        }
+
         let url = value;
         let html = await this.readFromUrl(url, encoding);
         if(!html) return;
