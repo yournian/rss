@@ -28,6 +28,35 @@ class JobMgr {
         await queue.clean(100, 'active');
         await queue.clean(100, 'delayed');
         await queue.clean(100, 'failed');
+
+        // if(name == 'rss'){
+        //     let count = await queue.count();
+        //     let active = await queue.getActiveCount();
+        //     let waiting = await queue.getWaitingCount();
+        //     let completedCount = await queue.getCompletedCount();
+        //     let delayed = await queue.getDelayedCount();
+
+        //     console.log(name, count, active, waiting, completedCount,delayed);
+
+        //     await queue.clean(100, 'wait');
+        //     await queue.clean(100, 'active');
+        //     await queue.clean(100, 'completed');
+        //     await queue.clean(100, 'delayed');
+
+
+        //     active = await queue.getActiveCount();
+        //     waiting = await queue.getWaitingCount();
+        //     count = await queue.count();
+        //     completedCount = await queue.getCompletedCount();
+        //     delayed = await queue.getDelayedCount();
+        //     console.log(name, count, active, waiting, completedCount,delayed);
+
+        //     let jobs = await queue.getJobs();
+        //     if(jobs.length > 0){
+        //         let state = await jobs[0].getState();
+        //         console.log(jobss);
+        //     }
+        // }
         await queue.empty();
 
         queue
@@ -62,7 +91,6 @@ class JobMgr {
             let model = interval ? { 'every': interval } : { 'cron': cron };
             let queue = this.getQueue(type);
             let obj = await queue.add(job, { 'delay': 1000, 'repeat': model }); //todo
-            console.log(obj);
         }
     }
 

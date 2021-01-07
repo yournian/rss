@@ -91,7 +91,7 @@ class YoutubeHandler extends Handler{
 
     async updateFeed(config) {
         let {name, value} = config;
-        console.log('update youtube', name, value);
+        logger.info('update youtube', name, value);
         let channel = value;
         let html;
         if(isDev){
@@ -125,7 +125,7 @@ class YoutubeHandler extends Handler{
             logger.info('updateFeed[%s], generate empty feed', name);
         }
         // test 暂时最多下载5个
-        let updateItems = items.slice(0, 5);
+        let updateItems = items; //items.slice(0, 5);
         let toAddItems = this.diff(updateItems, feed.items);
     
         if (toAddItems.length == 0) {

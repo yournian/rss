@@ -27,6 +27,7 @@ class Youtube{
     }
 
     downloadItem(item){
+        // todo 队列
         return this.download(item);
     }
 
