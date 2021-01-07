@@ -1,5 +1,5 @@
 let enable = true;
-let immediate = false;
+let immediate = true;
 
 
 module.exports = [
