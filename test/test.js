@@ -1,8 +1,8 @@
-const Youtube = require('../util/youtube');
+const test_handler = require('./test_handler');
 
-let promise = new Youtube().getPlaylist(['snippet'], 'UCghLs6s95LrBWOdlZUCH4qw','');
-promise.then((body) => {
-    console.log(body);
-}).catch((err) => {
-    console.log('err',err);
-})
+
+function start(){
+    test_handler();
+}
+
+module.exports = start;

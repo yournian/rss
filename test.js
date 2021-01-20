@@ -1,8 +1,9 @@
-const config = require('./config.production');
+const config = require('./config');
 global.config = config;
 global.consts = require('./src/consts');
 global.logger = require('./src/util/logger');
-const app = require('./src/app');
+global.config.env = 'test';
+const test = require('./test/test');
 
 
-app.start();
+test();

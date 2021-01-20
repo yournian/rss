@@ -2,6 +2,14 @@ const expect = require('chai').expect;
 const Youtube = require('../logic/youtube');
 const {youtube_key} = require('../config.json');
 const {CHANNEL} = require('../consts');
+const Youtube = require('../util/youtube');
+
+// let promise = new Youtube().getPlaylist(['snippet'], 'UCghLs6s95LrBWOdlZUCH4qw','');
+// promise.then((body) => {
+//     console.log(body);
+// }).catch((err) => {
+//     console.log('err',err);
+// })
 
 describe('youtube', () => {
     it('getChannelInfo', async () => {

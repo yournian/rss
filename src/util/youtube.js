@@ -6,6 +6,7 @@ const path = require('path');
 const {PATH} = require('../consts');
 const request = require('request');
 const {md5} = require('./crypto');
+const isDev = global.config.env == 'dev';
 
 class Youtube{
     constructor(){
@@ -52,7 +53,7 @@ class Youtube{
             })
         }else{
             return new Promise((resolve, reject) => {
-                if(global.isDev){
+                if(isDev){
                     // 测试，跳过下载直接写入一个文件
                     new File().save(_path, 'test').then(() => {
                         let size = new File().getSize(_path);
