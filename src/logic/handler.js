@@ -8,8 +8,11 @@ const {youtube_key} = require('../../config');
 const Youtube = require('../util/youtube');
 const FeedFactory = require('./feed');
 const cheerio = require('cheerio');
+const { description } = require('commander');
 const isDev = global.config.env == 'dev';
+const isTest = global.config.env == 'test';
 
+const models = global.models;
 
 class Handler{
     constructor(){
@@ -81,6 +84,25 @@ class Handler{
     transDate(str){
         str = str.replace('th', '');
         return new Date(str).toUTCString();
+    }
+
+    async addDbArticle(items){
+        try{
+            let titles = items.map(ele => ele.title);
+            let exists = await getArticleByTitles(titles);
+            let toAdd = [];
+            if(exists.length > 0){
+                toAdd = items.filter(item => !exists.includes(item) );
+            }else{
+                toAdd = exists;
+            }
+            let r = await addArticle(toAdd);
+            logger.info('addDbArticle succeed');
+        }catch(err){
+            logger.error('addDbArticle failed', err);
+        }
+        
+
     }
 }
 
@@ -238,16 +260,32 @@ class RssHandler extends Handler{
 
     async updateFeed(config){
         let {name, value, encoding} = config;
+        let url = value;
+        let html;
+
         if(isDev){
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
                     resolve('done');
                 }, 2000)
             })
+        }else if(isTest){
+            // 测试
+            let content = await this.readFromFile(`static/temp/${name}.html`);
+            if(!content){
+                html = await this.readFromUrl(url, encoding);
+                await html.save(`static/temp/${name}.html`);
+                console.log('=====save====');
+            }else{
+                html = {'content': content};
+            }
+        }else{
+            // 上线
+            html = await this.readFromUrl(url, encoding);
         }
+        
 
-        let url = value;
-        let html = await this.readFromUrl(url, encoding);
+
         if(!html) return;
 
         let {info, items} = await this.parse(html.content);
@@ -278,6 +316,26 @@ class RssHandler extends Handler{
             logger.info('updateFeed[%s] succeed', name);
         } else {
             logger.error('updateFeed[%s] failed', name);
+        }
+        let now = new Date().getTime();
+        let tt = new Date(items[0].pubDate).getTime()
+        console.log(tt)
+        let datas = items.map(ele => {
+            return {
+                'title': ele.title,
+                'description': ele.description,
+                'link': ele.link,
+                'feed': name,
+                'pubTime': new Date(ele.pubDate).getTime(),
+                'addTime': now
+            }
+        }).sort((a,b) => {return (a.pubTime - b.pubTime)})
+        
+        try{
+            const reult = await models.article.bulkCreate(datas);
+            console.log(reult.length);
+        }catch(err){
+            console.error(err);
         }
         return succeed;
     }
@@ -328,7 +386,6 @@ class WebsiteHandler extends Handler{
         }else{
             // 上线
             html = await this.readFromUrl(url, encoding);
-
         }
 
         if(!html){return null};

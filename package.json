@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yournian/youtube_podcast.git"
+    "url": "git+https://github.com/yournian/rss.git"
   },
   "keywords": [
     "youtube",
@@ -22,9 +22,9 @@
   "author": "yournian",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/yournian/youtube_podcast/issues"
+    "url": "https://github.com/yournian/rss/issues"
   },
-  "homepage": "https://github.com/yournian/youtube_podcast#readme",
+  "homepage": "https://github.com/yournian/rss#readme",
   "dependencies": {
     "bull": "^3.19.1",
     "cheerio": "^1.0.0-rc.3",
@@ -36,8 +36,11 @@
     "koa-router": "^9.0.1",
     "koa-static": "^5.0.0",
     "log4js": "^6.2.1",
+    "mysql2": "^2.2.5",
     "node-schedule": "^1.3.2",
     "request": "^2.88.2",
+    "sequelize": "^6.5.0",
+    "sequelize-auto": "^0.7.8",
     "superagent": "^5.3.1",
     "uuid": "^7.0.3",
     "xml2js": "^0.4.23",

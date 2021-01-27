@@ -1,7 +1,8 @@
 const program = require('commander');
 const packageJson = require('../package.json');
-const JobMgr = require('./logic/jobMgr2');
-const crontab = require('./crontab');
+const schedule = require('./logic/schedule');
+const {logger} = global
+
 
 process.on('uncaughtException', function (err) {
   logger.error('Caught exception ', err);
@@ -36,9 +37,13 @@ if (program.loglvl) {
 
 
 function start() {
-  let jobMgr = new JobMgr();
-  jobMgr.load(crontab);
-  console.log('rss started');
+  try{
+    schedule.loadJobs();
+    // todo http
+    console.log('rss started');
+  }catch(err){
+    logger.error('rss', err);
+  }
 }
 
 module.exports = {

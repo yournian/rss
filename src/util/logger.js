@@ -6,7 +6,7 @@ const conf = {
         sys: {
             type: 'dateFile',
             filename: './log/sys.log',
-            pattern: '.yyyy-MM-dd-hh',
+            pattern: '.yyyy-MM-dd',
             daysToKeep: 28,   //保留1个月
         },
         console: {
