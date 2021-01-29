@@ -28,7 +28,7 @@ let feeds= [
         interval: 21600000, // 6h
         enable: enable,
         immediate: immediate,
-        rules: [
+        rule: [
             "#newsfeed",
             ".col",
             {

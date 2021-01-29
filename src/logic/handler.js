@@ -338,10 +338,10 @@ class Rule {
         this.infoTokens = {};
     }
 
-    build(rules) {
-        this.parentToken = rules[0];
-        this.columnToken = rules[1];
-        this.infoTokens = rules[2];
+    build(rule) {
+        this.parentToken = rule[0];
+        this.columnToken = rule[1];
+        this.infoTokens = rule[2];
     }
 }
 
@@ -352,7 +352,7 @@ class WebsiteHandler extends Handler {
     }
 
     async updateFeed(config) {
-        let { name, value, rules, encoding, description } = config;
+        let { name, value, rule, encoding, description } = config;
         let url = value;
 
         let html;
@@ -373,7 +373,7 @@ class WebsiteHandler extends Handler {
 
         if (!html) { return null };
 
-        this.rule.build(rules);
+        this.rule.build(rule);
         let { info, items } = await this.parse(html.content); //todo
         info.title = name;
         info.link = url;
