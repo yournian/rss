@@ -1,25 +1,31 @@
-let level = global.config.logLvl;
-level = level ? level : 'info';
+let defalulLvl = 'info';
+const log4js = require('log4js')
 
-const conf = {
-    appenders: {
-        sys: {
-            type: 'dateFile',
-            filename: './log/sys.log',
-            pattern: '.yyyy-MM-dd',
-            daysToKeep: 28,   //保留1个月
+
+function init(config){
+    let level = config.logLvl;
+    level = level ? level : defalulLvl;
+    const conf = {
+        appenders: {
+            sys: {
+                type: 'dateFile',
+                filename: './log/sys.log',
+                pattern: '.yyyy-MM-dd',
+                daysToKeep: 28,   //保留1个月
+            },
+            console: {
+                type: 'console'
+            }
         },
-        console: {
-            type: 'console'
+        categories: {
+            sys: { appenders: ['sys'], level: level },
+            default: { appenders: ['console', 'sys'], level: level },
         }
-    },
-    categories: {
-        sys: { appenders: ['sys'], level: level },
-        default: { appenders: ['console', 'sys'], level: level },
     }
+    log4js.configure(conf);
+    const logger = log4js.getLogger(); //default
+    return logger;
 }
 
-const log4js = require('log4js').configure(conf);
-const logger = log4js.getLogger(); //default
 
-module.exports = logger;
+module.exports = {init};

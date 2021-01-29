@@ -1,7 +1,8 @@
 const program = require('commander');
 const packageJson = require('../package.json');
 const schedule = require('./logic/schedule');
-const {logger} = global
+const ctx = require('./context');
+const logger = ctx.logger;
 
 
 process.on('uncaughtException', function (err) {
@@ -40,7 +41,7 @@ function start() {
   try{
     schedule.loadJobs();
     // todo http
-    console.log('rss started');
+    logger.info('============rss started=======');
   }catch(err){
     logger.error('rss', err);
   }

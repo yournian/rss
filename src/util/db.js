@@ -8,7 +8,7 @@ function init(config){
         dialect: 'mysql'
     });
     const models = initModels(sequelize);
-    return models;
+    return {models, sequelize};
 }
 
 module.exports = {

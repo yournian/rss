@@ -2,17 +2,18 @@ const File = require('../util/myFile');
 const file = new File();
 const { RssXml, YoutubeXml } = require('./xml');
 const { HtmlDownloader } = require('../util/html');
-const logger = require('../util/logger');
-const {MAX_RETYR_TIMES} = require('../consts');
-const {youtube_key} = require('../../config');
+const ctx = require('../context');
 const Youtube = require('../util/youtube');
 const FeedFactory = require('./feed');
 const cheerio = require('cheerio');
 const { description } = require('commander');
-const isDev = global.config.env == 'dev';
-const isTest = global.config.env == 'test';
 
-const models = global.models;
+const logger = ctx.logger;
+const {MAX_RETYR_TIMES} = ctx.consts;
+const {youtube_key, env} = ctx.config;
+const isDev = env == 'dev';
+const isTest = env == 'test';
+// const models = ctx.models;
 
 class Handler{
     constructor(){
@@ -263,13 +264,15 @@ class RssHandler extends Handler{
         let url = value;
         let html;
 
-        if(isDev){
-            return new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    resolve('done');
-                }, 2000)
-            })
-        }else if(isTest){
+        // if(isDev){
+        //     return new Promise((resolve, reject) => {
+        //         setTimeout(() => {
+        //             resolve('done');
+        //         }, 2000)
+        //     })
+        // }
+        
+        if(isTest){
             // 测试
             let content = await this.readFromFile(`static/temp/${name}.html`);
             if(!content){
@@ -279,12 +282,10 @@ class RssHandler extends Handler{
             }else{
                 html = {'content': content};
             }
-        }else{
-            // 上线
-            html = await this.readFromUrl(url, encoding);
         }
-        
 
+        // 上线
+        html = await this.readFromUrl(url, encoding);
 
         if(!html) return;
 
@@ -332,8 +333,9 @@ class RssHandler extends Handler{
         }).sort((a,b) => {return (a.pubTime - b.pubTime)})
         
         try{
-            const reult = await models.article.bulkCreate(datas);
-            console.log(reult.length);
+            // const result = await models.article.bulkCreate(datas);
+            const result = await ctx.addArticles(datas);
+            // console.log(result);
         }catch(err){
             console.error(err);
         }

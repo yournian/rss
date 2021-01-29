@@ -1,5 +1,6 @@
 const Queue = require('bull');
 const HandlerFactory = require('./handler');
+const logger = require('../context').logger;
 
 async function myJob(job, done) {
     let data = job.data;
@@ -9,8 +10,9 @@ async function myJob(job, done) {
         job.progress = 100;
         done('no such handler[%s]', data.type)
     } else {
-        await handler.updateFeed(data);
-        done(null, 'ok')
+        let succeed = await handler.updateFeed(data);
+        job.progress = 100;
+        done(null, 'ok');
     }
 }
 
@@ -50,7 +52,7 @@ class JobMgr {
         for (let job of crontab) {
             let { name, enable, immediate, type, interval, cron } = job;
             if (!enable) continue;
-            if(immediate) await queue.add(job)
+            if(immediate) await queue.add(job);
             setInterval(async () => {
                 await queue.add(job)
             }, interval)

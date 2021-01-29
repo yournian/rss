@@ -6,7 +6,9 @@ const path = require('path');
 const {PATH} = require('../consts');
 const request = require('request');
 const {md5} = require('./crypto');
-const isDev = global.config.env == 'dev';
+const ctx = require('../context');
+const isDev = ctx.config.env == 'dev';
+
 
 class Youtube{
     constructor(){

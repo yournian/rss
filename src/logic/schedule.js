@@ -1,13 +1,15 @@
 const JobMgr = require('./jobMgr2');
-const models = global.models;
+const ctx = require('../context');
+
 
 async function loadJobs(){
+    const models = ctx.models;
     const crontabs = await models.crontabs.findAll({
         attributes: ['name',['_value', 'value'], 'type', 'encoding', 'interval', 'enable', 'immediate'],
         where: {enable: 1}
     });
     let jobMgr = new JobMgr();
-    jobMgr.load(crontabs)
+    jobMgr.load(crontabs);
 }
 
 

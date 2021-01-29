@@ -1,12 +1,14 @@
 const {RssXml} = require('./xml');
 const File = require('../util/myFile');
 const file = new File();
-const logger = require('../util/logger');
 const path = require('path');
-const {PATH, MAX_ITEM_LEN} = require('../consts');
-const config = require('../../config');
+const ctx = require('../context');
+const {config, consts, logger} = ctx;
+const {PATH, MAX_ITEM_LEN} = consts;
 const {md5} = require('../util/crypto');
 const {escape} = require('../util/tool');
+
+
 
 class Item{
     constructor(title, guid, audio, pubDate, link, description){
