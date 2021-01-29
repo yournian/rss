@@ -18,8 +18,8 @@ let feeds= [
         type: "rss",
         encoding: "GBK",
         interval: 3600000, // 1h
-        enable: true,
-        immediate: true,
+        enable: enable,
+        immediate: enable,
     },
     {
         name: "bwfbadminton",
@@ -47,9 +47,11 @@ let feeds= [
 ]
 
 function start(){
-    let jod = feeds[1];
-    let handler = new HandlerFactory().getHandler(jod.type);
-    handler.updateFeed(jod);
+    let job = feeds[2];
+    job.immediate = true;
+    job.enable = true;
+    let handler = new HandlerFactory().getHandler(job.type);
+    handler.updateFeed(job);
 }
 
 

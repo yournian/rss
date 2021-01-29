@@ -9,31 +9,31 @@ const cheerio = require('cheerio');
 const { description } = require('commander');
 
 const logger = ctx.logger;
-const {MAX_RETYR_TIMES} = ctx.consts;
-const {youtube_key, env} = ctx.config;
+const { MAX_RETYR_TIMES } = ctx.consts;
+const { youtube_key, env } = ctx.config;
 const isDev = env == 'dev';
 const isTest = env == 'test';
 // const models = ctx.models;
 
-class Handler{
-    constructor(){
+class Handler {
+    constructor() {
         this.retryTimes = 0;
     }
 
-    updateFeed(config){
+    updateFeed(config) {
         logger.info('updateFeed[%s]', config.name);
     }
 
-    reUpdateFeed(config){
-        let {name, value} = config;
+    reUpdateFeed(config) {
+        let { name, value } = config;
         logger.debug('====reUpdateFeed[%s] ====', name);
-        if(this.retryTimes >= MAX_RETYR_TIMES) return;
+        if (this.retryTimes >= MAX_RETYR_TIMES) return;
         this.retryTimes += 1;
         logger.info('retry update feed[%s] [%d] times', name, this.retryTimes);
         let timeout = this.retryTimes * 10 * 60 * 1000; //n分钟后重试
         let timer = setTimeout(async () => {
             let succeed = await this.updateFeed(name, value);
-            if(succeed){
+            if (succeed) {
                 clearTimeout(timer);
                 logger.info('retry update feed[%s] succeed', name);
             };
@@ -42,7 +42,7 @@ class Handler{
 
     readFromUrl(url, encoding) {
         logger.debug('====handler readFromUrl====');
-        if(!url) return null;
+        if (!url) return null;
         let htmlDownlaoder = new HtmlDownloader();
         return htmlDownlaoder.download(url, encoding);
     }
@@ -50,9 +50,9 @@ class Handler{
     async readFromFile(path) {
         logger.debug('====handler readFromFile====');
         let exist = await file.isExist(path);
-        if(exist){
+        if (exist) {
             return await file.read(path);
-        }else{
+        } else {
             return null;
         }
     }
@@ -61,9 +61,9 @@ class Handler{
         logger.debug('====handler parse====');
         try {
             let xml;
-            if(type == 'ytbFeed'){
+            if (type == 'ytbFeed') {
                 xml = new YoutubeXml();
-            }else{
+            } else {
                 xml = new RssXml();
             }
             let { info, items } = await xml.parse(content);
@@ -71,62 +71,43 @@ class Handler{
                 logger.warn('handler parse: no items');
                 logger.warn('content: ', content);
             }
-            return {info, items};
+            return { info, items };
         } catch (err) {
             logger.error('parse html failed: ', err);
             return {};
         }
     }
 
-    genInfo(name){
+    genInfo(name) {
         logger.debug('====handler genInfo[%s]====', name);
     }
 
-    transDate(str){
+    transDate(str) {
         str = str.replace('th', '');
         return new Date(str).toUTCString();
     }
-
-    async addDbArticle(items){
-        try{
-            let titles = items.map(ele => ele.title);
-            let exists = await getArticleByTitles(titles);
-            let toAdd = [];
-            if(exists.length > 0){
-                toAdd = items.filter(item => !exists.includes(item) );
-            }else{
-                toAdd = exists;
-            }
-            let r = await addArticle(toAdd);
-            logger.info('addDbArticle succeed');
-        }catch(err){
-            logger.error('addDbArticle failed', err);
-        }
-        
-
-    }
 }
 
-class YoutubeHandler extends Handler{
-    constructor(){
+class YoutubeHandler extends Handler {
+    constructor() {
         super();
     }
 
     async updateFeed(config) {
-        let {name, value} = config;
+        let { name, value } = config;
         logger.info('update youtube', name, value);
         let channel = value;
         let html;
-        if(isDev){
+        if (isDev) {
             let content = await this.readFromFile('static/temp/youtube.xml');
-            html = {'content': content};
-        }else{
+            html = { 'content': content };
+        } else {
             let url = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + channel;
             html = await this.readFromUrl(url);
         }
 
-        if(!html){return null};
-        let {info, items} = await this.parse(html.content);
+        if (!html) { return null };
+        let { info, items } = await this.parse(html.content);
 
         if (!items) {
             logger.warn('updateFeed[%s] failed, retry later', name);
@@ -138,7 +119,7 @@ class YoutubeHandler extends Handler{
             logger.info('updateFeed[%s], no videos', name);
             return;
         }
-    
+
         let feed = new FeedFactory().getFeed('podcast');
         let exist = await feed.readFromFile(name);
         if (!exist) {
@@ -150,19 +131,19 @@ class YoutubeHandler extends Handler{
         // test 暂时最多下载5个
         let updateItems = items; //items.slice(0, 5);
         let toAddItems = this.diff(updateItems, feed.items);
-    
+
         if (toAddItems.length == 0) {
             logger.info('updateFeed[%s], no updates', name);
             return;
         } else {
             logger.info('updateFeed[%s], [%d] updates', name, toAddItems.length);
         }
-        
+
         let youtube = new Youtube();
         let promises = youtube.downloadItems(toAddItems);
         let resultItems = [];
-        if(promises.length !== 0){
-            resultItems =  await Promise.all(promises);
+        if (promises.length !== 0) {
+            resultItems = await Promise.all(promises);
         }
         feed.addItems(resultItems);
         let succeed = await feed.updateFile(name);
@@ -191,13 +172,13 @@ class YoutubeHandler extends Handler{
         older.forEach(element => {
             exist.push(element.title);
         });
-    
+
         let newItems = newer.filter(item => !exist.includes(item.title));
-    
+
         return newItems;
     }
 
-    async genInfo(name, channel, href){
+    async genInfo(name, channel, href) {
         super.genInfo();
         let image = await this.getImage(channel);
         let info = {
@@ -242,7 +223,7 @@ class YoutubeHandler extends Handler{
             }
             logger.info('youtube getImage succeed');
             return image;
-           } catch (err) {
+        } catch (err) {
             logger.error('youtube getImage failed: ', err);
             logger.error('info', JSON.stringify(info));
             return null;
@@ -254,13 +235,13 @@ class YoutubeHandler extends Handler{
     }
 }
 
-class RssHandler extends Handler{
-    constructor(){
+class RssHandler extends Handler {
+    constructor() {
         super();
     }
 
-    async updateFeed(config){
-        let {name, value, encoding} = config;
+    async updateFeed(config) {
+        let { name, value, encoding } = config;
         let url = value;
         let html;
 
@@ -271,26 +252,26 @@ class RssHandler extends Handler{
         //         }, 2000)
         //     })
         // }
-        
-        if(isTest){
+
+        if (isTest) {
             // 测试
             let content = await this.readFromFile(`static/temp/${name}.html`);
-            if(!content){
+            if (!content) {
                 html = await this.readFromUrl(url, encoding);
                 await html.save(`static/temp/${name}.html`);
                 console.log('=====save====');
-            }else{
-                html = {'content': content};
+            } else {
+                html = { 'content': content };
             }
         }
 
         // 上线
         html = await this.readFromUrl(url, encoding);
 
-        if(!html) return;
+        if (!html) return;
 
-        let {info, items} = await this.parse(html.content);
-        
+        let { info, items } = await this.parse(html.content);
+
         if (!items) {
             logger.warn('updateFeed[%s] failed, retry later', name);
             // this.reUpdateFeed(config);
@@ -301,7 +282,7 @@ class RssHandler extends Handler{
             logger.info('updateFeed[%s], no items', name);
             return;
         }
-    
+
         let feed = new FeedFactory().getFeed('text');
         let exist = await feed.readFromFile(name);
         if (!exist) {
@@ -330,19 +311,19 @@ class RssHandler extends Handler{
                 'pubTime': new Date(ele.pubDate).getTime(),
                 'addTime': now
             }
-        }).sort((a,b) => {return (a.pubTime - b.pubTime)})
-        
-        try{
+        }).sort((a, b) => { return (a.pubTime - b.pubTime) })
+
+        try {
             // const result = await models.article.bulkCreate(datas);
             const result = await ctx.addArticles(datas);
             // console.log(result);
-        }catch(err){
+        } catch (err) {
             console.error(err);
         }
         return succeed;
     }
 
-    async genInfo(name, url, href, info){
+    async genInfo(name, url, href, info) {
         super.genInfo(name);
         info.href = href;
         info.pubDate = new Date().toUTCString();
@@ -350,50 +331,50 @@ class RssHandler extends Handler{
     }
 }
 
-class Rule{
-    constructor(){
+class Rule {
+    constructor() {
         this.parentToken = '';
         this.columnToken = '';
         this.infoTokens = {};
     }
 
-    build(rules){
+    build(rules) {
         this.parentToken = rules[0];
         this.columnToken = rules[1];
         this.infoTokens = rules[2];
     }
 }
 
-class WebsiteHandler extends Handler{
-    constructor(){
+class WebsiteHandler extends Handler {
+    constructor() {
         super();
         this.rule = new Rule();
     }
 
-    async updateFeed(config){
-        let {name, value, rules, encoding, description} = config;
+    async updateFeed(config) {
+        let { name, value, rules, encoding, description } = config;
         let url = value;
-        
+
         let html;
-        if(isDev){
+        if (isDev) {
             // 测试
             let content = await this.readFromFile(`static/temp/${name}.html`);
-            if(!content){
+            if (!content) {
                 html = await this.readFromUrl(url, encoding);
                 await html.save(`static/temp/${name}.html`);
                 console.log('=====save====');
-            }else{
-                html = {'content': content};
+            } else {
+                html = { 'content': content };
             }
-        }else{
+        } else {
             // 上线
             html = await this.readFromUrl(url, encoding);
         }
 
-        if(!html){return null};
+        if (!html) { return null };
 
         this.rule.build(rules);
-        let {info, items} = await this.parse(html.content); //todo
+        let { info, items } = await this.parse(html.content); //todo
         info.title = name;
         info.link = url;
         info.description = description;
@@ -408,7 +389,7 @@ class WebsiteHandler extends Handler{
             logger.info('updateFeed[%s], no items', name);
             return;
         }
-    
+
         let feed = new FeedFactory().getFeed('text');
         let exist = await feed.readFromFile(name);
         if (!exist) {
@@ -425,17 +406,40 @@ class WebsiteHandler extends Handler{
         } else {
             logger.error('updateFeed[%s] failed', name);
         }
+
+        let now = new Date().getTime();
+        let tt = new Date(items[0].pubDate).getTime()
+        console.log(tt)
+        let datas = items.map(ele => {
+            return {
+                'title': ele.title,
+                'description': ele.description,
+                'link': ele.link,
+                'feed': name,
+                'pubTime': new Date(ele.pubDate).getTime(),
+                'addTime': now
+            }
+        }).sort((a, b) => { return (a.pubTime - b.pubTime) })
+
+        try {
+            // const result = await models.article.bulkCreate(datas);
+            const result = await ctx.addArticles(datas);
+            // console.log(result);
+        } catch (err) {
+            console.error(err);
+        }
+
         return succeed;
     }
 
-    parseElement(rule){
-        if(!rule) return null;
-        function recursion(arr){
+    parseElement(rule) {
+        if (!rule) return null;
+        function recursion(arr) {
             if (arr.length == 0) return;
             let obj = {};
             let temp = arr[0].split('->');
-            if(!temp[0]) return ;
-    
+            if (!temp[0]) return;
+
             obj.tag = temp[0];
             if (temp[1]) {
                 obj.value = temp[1];
@@ -444,22 +448,22 @@ class WebsiteHandler extends Handler{
             }
             return obj;
         }
-    
+
         let arr = rule.split('|');
         return recursion(arr);
     }
 
-    getEleValue($, source, ele){
+    getEleValue($, source, ele) {
         let target = $($(source).find(ele.tag));
-        
-        while(ele.child){
+
+        while (ele.child) {
             let node = target.find(ele.child.tag);
             target = $(node);
             ele = ele.child;
         }
         let value = target.attr(ele.value);
 
-        if(!value && ele.value == 'value'){
+        if (!value && ele.value == 'value') {
             value = target.text();
         }
 
@@ -471,26 +475,26 @@ class WebsiteHandler extends Handler{
         logger.debug('====handler parse====');
         try {
             var $ = cheerio.load(content);
-            let {parentToken, columnToken, infoTokens} = this.rule;
+            let { parentToken, columnToken, infoTokens } = this.rule;
             let parent = $(parentToken)
             let columns = parent.find(columnToken);
             let items = [];
-            for(let i = 0; i < columns.length; i++){
+            for (let i = 0; i < columns.length; i++) {
                 let column = columns[i];
                 let item = {};
-                for(let token in infoTokens){
-                    if(infoTokens[token] == '[object Object]'){
+                for (let token in infoTokens) {
+                    if (infoTokens[token] == '[object Object]') {
                         item[token] = {};
-                        for(let subToken in infoTokens[token]){
+                        for (let subToken in infoTokens[token]) {
                             let ele = this.parseElement(infoTokens[token][subToken]);
                             let value = this.getEleValue($, column, ele);
                             item[token][subToken] = value;
                         }
-                    }else{
+                    } else {
                         let ele = this.parseElement(infoTokens[token]);
-                        if(ele){
+                        if (ele) {
                             let value = this.getEleValue($, column, ele);
-                            switch(token){
+                            switch (token) {
                                 case 'pubDate':
                                     value = this.transDate(value);
                                     break;
@@ -498,22 +502,22 @@ class WebsiteHandler extends Handler{
                                     break;
                             }
                             item[token] = value;
-                        }else{
+                        } else {
                             item[token] = '';
                         }
                     }
                 }
-                items.push(item);    
-            }        
+                items.push(item);
+            }
             let info = {};
-            return {info, items};
+            return { info, items };
         } catch (err) {
             logger.error('parse html failed: ', err);
             return {};
         }
     }
 
-    async genInfo(name, url, href, info){
+    async genInfo(name, url, href, info) {
         super.genInfo(name);
         info.href = href;
         info.pubDate = new Date().toUTCString();
@@ -521,12 +525,12 @@ class WebsiteHandler extends Handler{
     }
 }
 
-class HandlerFactory{
-    constructor(){}
+class HandlerFactory {
+    constructor() { }
 
-    getHandler(type){
+    getHandler(type) {
         let handler = null;
-        switch(type){
+        switch (type) {
             case 'rss':
                 handler = new RssHandler();
                 break;
