@@ -5,7 +5,8 @@ function init(config){
     let {database, host, port, user, password} = config;
     const sequelize = new Sequelize(database, user, password, {
         host: host,
-        dialect: 'mysql'
+        dialect: 'mysql',
+        logging: false
     });
     const models = initModels(sequelize);
     return {models, sequelize};
