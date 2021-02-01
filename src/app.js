@@ -7,13 +7,10 @@ const logger = ctx.logger;
 
 process.on('uncaughtException', function (err) {
   logger.error('Caught exception ', err);
-  console.log('Caught exception ', err);
-
 });
 
 process.on('unhandledRejection', function (err) {
   logger.error('Caught unhandledRejection ', err);
-  console.log('Caught unhandledRejection ', err);
 });
 
 program

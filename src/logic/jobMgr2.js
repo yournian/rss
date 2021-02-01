@@ -10,7 +10,12 @@ async function myJob(job, done) {
         job.progress = 100;
         done('no such handler[%s]', data.type)
     } else {
-        let succeed = await handler.updateFeed(data);
+        try{
+            let succeed = await handler.updateFeed(data);
+        }catch(err){
+            logger.error('job updateFeed failed', err,JSON.stringify(data));
+        }
+
         job.progress = 100;
         done(null, 'ok');
     }

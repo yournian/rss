@@ -1,4 +1,6 @@
 const HandlerFactory = require('../src/logic/handler');
+const ctx = require('../src/context');
+
 let enable = false;
 let immediate = false;
 
@@ -46,8 +48,19 @@ let feeds= [
     },
 ]
 
-function start(){
-    let job = feeds[2];
+async function start(){
+
+    const models = ctx.models;
+    const crontabs = await models.crontabs.findAll({
+        // attributes: ['name',['_value', 'values'], 'type', 'encoding', 'interval', 'enable', 'immediate', 'rule', 'description'],
+        where: {enable: 1}
+    });
+    for(let item of crontabs){
+        item.value = item._value;
+    }
+
+    let job = crontabs[0];
+    console.log(job.value);
     job.immediate = true;
     job.enable = true;
     let handler = new HandlerFactory().getHandler(job.type);
