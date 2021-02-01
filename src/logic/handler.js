@@ -339,6 +339,9 @@ class Rule {
     }
 
     build(rule) {
+        if(typeof rule == 'string'){
+            rule = JSON.parse(rule);
+        }
         this.parentToken = rule[0];
         this.columnToken = rule[1];
         this.infoTokens = rule[2];
@@ -475,7 +478,9 @@ class WebsiteHandler extends Handler {
         logger.debug('====handler parse====');
         try {
             var $ = cheerio.load(content);
+
             let { parentToken, columnToken, infoTokens } = this.rule;
+
             let parent = $(parentToken)
             let columns = parent.find(columnToken);
             let items = [];
