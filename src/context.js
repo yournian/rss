@@ -21,6 +21,15 @@ class Context{
         let vals = '';
         for(let item of datas){
             let {title, link, description, feed, pubTime, addTime} = item;
+
+            if(title.includes(`'`)){
+                title = title.replace(/\'/g, `\\'`);
+            }
+
+            if(description.includes(`'`)){
+                description = description.replace(/\'/g, `\\'`);
+            }
+
             vals += `('${title}','${link}','${description}','${feed}', ${pubTime}, ${addTime}),`;
         }
         vals = vals.slice(0, vals.length-1);
