@@ -5,7 +5,7 @@ const logger =  require('./util/logger');
 
 class Context{
     constructor(){
-
+        
     }
 
     async init(config){
@@ -15,6 +15,18 @@ class Context{
         const {models, sequelize} = db.init(config.mysql);
         this.models = models;
         this.sequelize = sequelize;
+    }
+
+    isTest(){
+        return this.config.env == 'test';
+    }
+
+    isDev(){
+        return this.config.env == 'dev';
+    }
+
+    isProduction(){
+        return this.config.env == 'production';
     }
 
     async addArticles(datas){
