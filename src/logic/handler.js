@@ -252,6 +252,7 @@ class RssHandler extends Handler {
         //         }, 2000)
         //     })
         // }
+        logger.info('rss updateFeed', name, env);
 
         if (isTest) {
             // 测试
