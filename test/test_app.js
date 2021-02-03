@@ -5,7 +5,7 @@ const logger = ctx.logger;
 function start() {
     try {
         schedule.loadJobs();
-        logger.info('============test app started=======');
+        logger.info('==test app started==');
     } catch (err) {
         logger.error('rss', err);
     }
