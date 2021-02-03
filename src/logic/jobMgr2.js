@@ -33,7 +33,7 @@ class JobMgr {
             }
             if (interval) {
                 if (immediate) {
-                    logger.trace('====immediate====', name, immediate);
+                    logger.info('====immediate====', name, immediate);
                     queue.addJob(job, opts);
                 } 
                 logger.trace('====job set interval====', name, interval);
