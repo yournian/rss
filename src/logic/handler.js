@@ -269,7 +269,10 @@ class RssHandler extends Handler {
         // 上线
         html = await this.readFromUrl(url, encoding);
 
-        if (!html) return;
+        if (!html) {
+            logger.warn('RssHandler html为空', url);
+            return;
+        }
 
         let { info, items } = await this.parse(html.content);
 
