@@ -67,6 +67,38 @@ class Context{
             return 0;
         }
     }
+
+    async addJobStatis(name, id, ts){
+        let addData = {
+            name: name,
+            jid: id,
+            activate_time: ts
+        }
+        try{
+            const statis = await ctx.models.job_statis_copy.create(addData);
+        }catch(err){
+            this.logger.error('addJobStatis', err, JSON.stringify(addData));
+            return 0;
+        }
+    }
+
+    async upJobStatis(name, id, ts){
+        let upData = {
+            name: name,
+            jid: id,
+            complete_time: ts,
+            complete: 1
+        }
+        let where = {
+            name: name,
+            jid: id
+        }
+        try{
+            const [results, metadata] = await ctx.models.job_statis_copy.update(upData, {where: where});
+        }catch(err){
+            this.logger.error('upJobStatis', err, JSON.stringify(upData));
+        }
+    }
 }
 
 let ctx = new Context();

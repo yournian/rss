@@ -1,9 +1,9 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return crontabs.init(sequelize, DataTypes);
+  return job_statis_copy.init(sequelize, DataTypes);
 }
 
-class crontabs extends Sequelize.Model {
+class job_statis_copy extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   super.init({
     id: {
@@ -17,58 +17,28 @@ class crontabs extends Sequelize.Model {
       allowNull: false,
       defaultValue: ""
     },
-    type: {
-      type: DataTypes.STRING(32),
-      allowNull: false,
-      defaultValue: ""
-    },
-    _value: {
+    jid: {
       type: DataTypes.STRING(255),
-      allowNull: false,
-      defaultValue: ""
+      allowNull: false
     },
-    interval: {
+    activate_time: {
       type: DataTypes.BIGINT,
       allowNull: false,
       defaultValue: 0
     },
-    cron: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      defaultValue: ""
-    },
-    enable: {
-      type: DataTypes.TINYINT,
+    complete_time: {
+      type: DataTypes.BIGINT,
       allowNull: false,
       defaultValue: 0
     },
-    immediate: {
-      type: DataTypes.TINYINT,
-      allowNull: false,
-      defaultValue: 0
-    },
-    encoding: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      defaultValue: ""
-    },
-    description: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      defaultValue: ""
-    },
-    rule: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    pause: {
+    complete: {
       type: DataTypes.TINYINT,
       allowNull: false,
       defaultValue: 0
     }
   }, {
     sequelize,
-    tableName: 'crontabs',
+    tableName: 'job_statis_copy',
     timestamps: false,
     indexes: [
       {
@@ -81,6 +51,6 @@ class crontabs extends Sequelize.Model {
       },
     ]
   });
-  return crontabs;
+  return job_statis_copy;
   }
 }

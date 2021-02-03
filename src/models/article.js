@@ -17,19 +17,11 @@ class article extends Sequelize.Model {
       allowNull: false,
       defaultValue: ""
     },
-    content: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
     link: {
       type: DataTypes.STRING(255),
       allowNull: false,
-      defaultValue: ""
-    },
-    feed: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      defaultValue: ""
+      defaultValue: "",
+      unique: "link"
     },
     description: {
       type: DataTypes.TEXT,
@@ -44,6 +36,15 @@ class article extends Sequelize.Model {
       type: DataTypes.BIGINT,
       allowNull: false,
       defaultValue: 0
+    },
+    feed: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+      defaultValue: ""
+    },
+    content: {
+      type: DataTypes.TEXT,
+      allowNull: true
     }
   }, {
     sequelize,
@@ -56,6 +57,14 @@ class article extends Sequelize.Model {
         using: "BTREE",
         fields: [
           { name: "id" },
+        ]
+      },
+      {
+        name: "link",
+        unique: true,
+        using: "BTREE",
+        fields: [
+          { name: "link" },
         ]
       },
       {
