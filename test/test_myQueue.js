@@ -1,6 +1,4 @@
 const Queue = require('bull');
-const ctx = require('../context');
-const logger = ctx.logger;
 
 
 class MyQueue {
@@ -17,36 +15,37 @@ class MyQueue {
         await queue.clean(100, 'delayed');
         await queue.clean(100, 'failed');
         let jobs = await queue.getRepeatableJobs();
-        for (let job of jobs) {
+        for(let job of jobs){
             await queue.removeRepeatableByKey(job.key);
+            console.log('remove', job.key);
         }
 
         queue
             .on('active', function (job, jobPromise) {
-                logger.info('job name[%s], activate ', job.data.name, job.id);
-                let ts = new Date().getTime();
-                ctx.addJobStatis(job.data.name, job.id, ts);
+                // console.log('job id[%s] name[%s], activate', job.id, job.data.name);
+                console.log('job name[%s], activate', job.data.name, new Date().getTime()/1000);
             })
             .on('progress', function (job, progress) {
-                logger.info('job name[%s], progress ', job.data.name, progress);
+                // console.log('job id[%s] name[%s], progress', job.id, job.data.name, progress);
             })
             .on('completed', function (job, result) {
-                logger.info('job name[%s], completed', job.data.name, job.id);
+                // console.log('job id[%s] name[%s], completed', job.id, job.data.name);
                 // job.remove();
-                let ts = new Date().getTime();
-                ctx.upJobStatis(job.data.name, job.id, ts);
             })
             .on('failed', function (job, err) {
-                logger.info('job name[%s], failed   ', job.data.name);
+                // console.log('job id[%s] name[%s], failed', job.id, job.data.name);
             })
-            .on('removed', function (job) {
-                logger.info('job name[%s], removed', job.data.name);
+            .on('removed', function(job){
+                // A job successfully removed.
+                // console.log('job id[%s] name[%s], removed', job.id, job.data.name);
+              })
+            
+            .on('paused', function(){
+                console.log('he queue has been paused');
             })
-            .on('paused', function () {
-                logger.info('the queue has been paused', this.name);
-            })
-            .on('resumed', function () {
-                logger.info('the queue has been resumed', this.name);
+            
+            .on('resumed', function(){
+                console.log('he queue has been resumed');
             })
         this.queue = queue;
         return queue;
@@ -60,17 +59,24 @@ class MyQueue {
         }
     }
 
-    async addJob(data, opts = {}) {
-        let job = await this.queue.add(data, opts);
+    async addJob(data, type) {
+        let job;
+        let rand = Math.floor(Math.random() * 100000000);
+        let opts = {jobId: rand};
+        if (type) {
+            job = await this.queue.add(type, data, opts);
+        } else {
+            job = await this.queue.add(data, opts);
+        }
         this.jobs.push(job);
     }
 
-    async getJob(id) {
+    async getJob(id){
         let job = await this.queue.getJob(id);
         return job;
     }
 
-    async getJobs() {
+    async getJobs(){
         let jobs = await this.queue.getJobs();
         return jobs;
     }
@@ -106,20 +112,29 @@ class MyQueue {
         return count;
     }
 
-    async getRepeatableJobs() {
+    async addRepeatJob(data, opts) {
+        let rand = Math.floor(Math.random() * 100000000);
+        opts.removeOnComplete = true;
+        opts.jobId = rand
+
+        let job = await this.queue.add(data, opts);
+        this.jobs.push(job);
+    }
+
+    async getRepeatableJobs(){
         let jobs = await this.queue.getRepeatableJobs();
         return jobs;
     }
 
-    async removeRepeatableByKey(key) {
+    async removeRepeatableByKey(key){
         await this.queue.removeRepeatableByKey(key);
     }
 
-    async pauseAllJobs() {
+    async pauseAllJobs(){
         await this.queue.pause();
     }
 
-    async resumeAllJobs() {
+    async resumeAllJobs(){
         await this.queue.resume();
     }
 }
