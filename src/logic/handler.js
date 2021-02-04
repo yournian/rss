@@ -6,14 +6,12 @@ const ctx = require('../context');
 const Youtube = require('../util/youtube');
 const FeedFactory = require('./feed');
 const cheerio = require('cheerio');
-const { description } = require('commander');
-
 const logger = ctx.logger;
 const { MAX_RETYR_TIMES } = ctx.consts;
 const { youtube_key, env } = ctx.config;
 const isDev = env == 'dev';
 const isTest = env == 'test';
-// const models = ctx.models;
+
 
 class Handler {
     constructor() {
@@ -241,18 +239,11 @@ class RssHandler extends Handler {
     }
 
     async updateFeed(config) {
+        logger.trace('rss updateFeed', JSON.stringify(config), env);
+
         let { name, value, encoding } = config;
         let url = value;
         let html;
-
-        // if(isDev){
-        //     return new Promise((resolve, reject) => {
-        //         setTimeout(() => {
-        //             resolve('done');
-        //         }, 2000)
-        //     })
-        // }
-        logger.info('rss updateFeed', name, env);
 
         if (isTest) {
             // 测试
@@ -260,7 +251,6 @@ class RssHandler extends Handler {
             if (!content) {
                 html = await this.readFromUrl(url, encoding);
                 await html.save(`static/temp/${name}.html`);
-                console.log('=====save====');
             } else {
                 html = { 'content': content };
             }
@@ -270,20 +260,19 @@ class RssHandler extends Handler {
         html = await this.readFromUrl(url, encoding);
 
         if (!html) {
-            logger.warn('RssHandler html为空', url);
+            logger.warn('RssHandler html为空', url, env);
             return;
         }
 
         let { info, items } = await this.parse(html.content);
 
         if (!items) {
-            logger.warn('updateFeed[%s] failed, retry later', name);
-            // this.reUpdateFeed(config);
+            logger.warn('RssHandler no itmes', name);
             return;
         }
 
         if (items.length == 0) {
-            logger.info('updateFeed[%s], no items', name);
+            logger.info('RssHandler[%s], items length=0', name);
             return;
         }
 
@@ -318,9 +307,7 @@ class RssHandler extends Handler {
         }).sort((a, b) => { return (a.pubTime - b.pubTime) })
 
         try {
-            // const result = await models.article.bulkCreate(datas);
             const result = await ctx.addArticles(datas);
-            // console.log(result);
         } catch (err) {
             console.error(err);
         }
@@ -429,9 +416,7 @@ class WebsiteHandler extends Handler {
         }).sort((a, b) => { return (a.pubTime - b.pubTime) })
 
         try {
-            // const result = await models.article.bulkCreate(datas);
             const result = await ctx.addArticles(datas);
-            // console.log(result);
         } catch (err) {
             console.error(err);
         }
