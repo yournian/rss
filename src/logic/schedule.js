@@ -7,11 +7,23 @@ async function loadJobs(){
     const crontabs = await models.crontabs.findAll({
         where: {enable: 1}
     });
+    let jobs = [];
     for(let item of crontabs){
-        item.value = item._value;
+        jobs.push({
+            name: item.name,
+            type: item.type,
+            value: item._value,
+            interval: item.interval,
+            cron: item.cron,
+            enable: item.enable,
+            immediate: item.immediate,
+            encoding: item.encoding,
+            description: item.description,
+            rule: item.rule,
+        });
     }
     let jobMgr = new JobMgr();
-    jobMgr.load(crontabs);
+    jobMgr.load(jobs);
 }
 
 
