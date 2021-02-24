@@ -301,7 +301,7 @@ class RssHandler extends Handler {
                 'description': ele.description,
                 'link': ele.link,
                 'feed': name,
-                'pubTime': new Date(ele.pubDate).getTime(),
+                'pubTime': new Date(ele.pubDate).getTime() || 0,
                 'addTime': now
             }
         }).sort((a, b) => { return (a.pubTime - b.pubTime) })
@@ -410,7 +410,7 @@ class WebsiteHandler extends Handler {
                 'description': ele.description,
                 'link': ele.link,
                 'feed': name,
-                'pubTime': new Date(ele.pubDate).getTime(),
+                'pubTime': new Date(ele.pubDate).getTime() || 0,
                 'addTime': now
             }
         }).sort((a, b) => { return (a.pubTime - b.pubTime) })
